@@ -78,24 +78,9 @@ export const BusanCourseMap: React.FC<BusanCourseMapProps> = ({ trip, onSelectPl
       
       {/* Top Header Card */}
       <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200/90 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-sky-600 mb-1.5">
-              <MapPin className="w-4 h-4" />
-              <span>구글 지도 공식 연동 (Google Maps Platform)</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              당일 코스 실시간 구글 지도
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              구글 지도 API가 연동되어 부산역부터 각 방문지까지의 동선이 마커와 연결선으로 표시됩니다. 마커를 클릭하면 상세 정보가 열립니다.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-bold text-sky-700 bg-sky-50 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-sky-200 shrink-0 self-start sm:self-auto">
-            <span>총 {places.length}개 방문지 코스</span>
-          </div>
-        </div>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          코스 지도
+        </h2>
       </div>
 
       {/* Map Viewport & Sidebar Grid */}

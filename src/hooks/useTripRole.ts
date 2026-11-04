@@ -1,11 +1,11 @@
 /**
  * ========================================================
- * [JS / 권한 및 보안 로직: 주최자(총무) vs 친구(보기 전용)]
+ * [JS / 권한 및 보안 로직: 관리자 vs 친구(보기 전용)]
  * - 파일 위치: src/hooks/useTripRole.ts
  * - 역할: 
  *   1) 친구 공유 링크 접속 시 읽기 전용 모드로 제한 (수정/추가 버튼 숨김)
- *   2) 총무 로그인 및 PIN 인증 (기본 비밀번호: 1128 또는 busan1128)
- *   3) 총무가 친구 열람 화면을 미리 확인해볼 수 있는 '미리보기 모드'
+ *   2) 관리자 로그인 및 비밀번호 인증
+ *   3) 관리자가 친구 열람 화면을 미리 확인해볼 수 있는 '미리보기 모드'
  * ========================================================
  */
 
@@ -74,9 +74,9 @@ export function useTripRole() {
       setRole('host');
       setIsPreviewingAsViewer(false);
       localStorage.setItem(ROLE_STORAGE_KEY, 'host');
-      return { success: true, message: '총무(주최자) 권한이 승인되었습니다! 이제 자유롭게 일정을 수정하실 수 있습니다.' };
+      return { success: true, message: '관리자 권한이 승인되었습니다! 이제 자유롭게 일정을 수정하실 수 있습니다.' };
     }
-    return { success: false, message: '비밀번호가 일치하지 않습니다. (기본 PIN: 1128)' };
+    return { success: false, message: '비밀번호가 일치하지 않습니다. 다시 확인해 주세요.' };
   }, [hostPin]);
 
   // Switch to viewer mode

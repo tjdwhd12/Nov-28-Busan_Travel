@@ -69,7 +69,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({ trip, onSelectPlac
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-sky-600 mb-1.5">
               <Calculator className="w-4 h-4" />
-              <span>총무를 위한 스마트 정산 & 예산 계산기</span>
+              <span>관리자를 위한 스마트 정산 & 예산 계산기</span>
             </div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
               예산 & 예매 현황 (5인 기준)

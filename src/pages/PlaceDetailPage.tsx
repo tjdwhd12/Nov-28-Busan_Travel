@@ -274,7 +274,7 @@ export const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
             <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80">
               <h4 className="text-sm font-bold text-amber-950 flex items-center gap-1.5 mb-2">
                 <Lightbulb className="w-4 h-4 text-amber-600" />
-                <span>총무의 핵심 꿀팁</span>
+                <span>관리자의 핵심 꿀팁</span>
               </h4>
               <ul className="text-xs text-amber-900 space-y-1.5 list-disc list-inside">
                 {place.tips.map((tip, i) => (

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, Lock, ShieldCheck, KeyRound, AlertCircle, ArrowRight } from 'lucide-react';
-import { DEFAULT_HOST_PIN } from '../../hooks/useTripRole';
 
 interface HostAuthModalProps {
   isOpen: boolean;
@@ -21,7 +20,7 @@ export const HostAuthModal: React.FC<HostAuthModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!pin.trim()) {
-      setErrorMessage('비밀번호(PIN)를 입력해 주세요.');
+      setErrorMessage('관리자 비밀번호를 입력해 주세요.');
       return;
     }
 
@@ -31,13 +30,8 @@ export const HostAuthModal: React.FC<HostAuthModalProps> = ({
       setPin('');
       onClose();
     } else {
-      setErrorMessage(`비밀번호가 일치하지 않습니다. (초기 설정 비밀번호: ${DEFAULT_HOST_PIN})`);
+      setErrorMessage('비밀번호가 일치하지 않습니다. 다시 확인해 주세요.');
     }
-  };
-
-  const handleQuickFill = () => {
-    setPin(DEFAULT_HOST_PIN);
-    setErrorMessage(null);
   };
 
   return (
@@ -66,7 +60,7 @@ export const HostAuthModal: React.FC<HostAuthModalProps> = ({
           <div>
             <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>총무 / 주최자 인증</span>
+              <span>관리자 인증</span>
             </div>
             <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
               일정 편집 권한 활성화
@@ -75,27 +69,27 @@ export const HostAuthModal: React.FC<HostAuthModalProps> = ({
         </div>
 
         <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-5">
-          친구들이 접속했을 때는 수정 및 장소 추가 버튼이 보이지 않습니다. 일정을 직접 수정하고 장소를 추가하려면 총무 비밀번호를 입력해 주세요.
+          일정을 직접 수정하고 장소를 추가하려면 관리자 비밀번호를 입력해 주세요.
         </p>
 
         {/* PIN Input Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              총무 비밀번호 (4자리)
+              관리자 비밀번호
             </label>
             <div className="relative">
               <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 inputMode="numeric"
-                maxLength={8}
+                maxLength={12}
                 value={pin}
                 onChange={(e) => {
                   setPin(e.target.value);
                   if (errorMessage) setErrorMessage(null);
                 }}
-                placeholder="4자리 숫자 입력"
+                placeholder="비밀번호 입력"
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-center text-lg font-bold tracking-widest text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all placeholder:text-slate-400 placeholder:text-sm placeholder:tracking-normal"
                 autoFocus
               />
@@ -108,20 +102,6 @@ export const HostAuthModal: React.FC<HostAuthModalProps> = ({
               <span>{errorMessage}</span>
             </div>
           )}
-
-          {/* Quick hint badge */}
-          <div className="bg-sky-50 rounded-xl p-3 border border-sky-100 flex items-center justify-between text-xs">
-            <span className="text-slate-600 font-medium">
-              기본 비밀번호는 여행일인 <span className="font-bold text-sky-700">{DEFAULT_HOST_PIN}</span> 입니다.
-            </span>
-            <button
-              type="button"
-              onClick={handleQuickFill}
-              className="text-xs font-bold text-sky-600 hover:text-sky-800 underline ml-2 shrink-0"
-            >
-              자동 입력
-            </button>
-          </div>
 
           {/* Action buttons */}
           <div className="pt-2 flex items-center gap-2">

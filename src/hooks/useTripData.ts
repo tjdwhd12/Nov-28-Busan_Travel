@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { TripPlan, Place } from '../types/trip';
 import { INITIAL_TRIP_DATA } from '../data/initialTripData';
 
-const STORAGE_KEY = 'busan_trip_data_1128_v5';
+const STORAGE_KEY = 'busan_trip_data_1128_v6';
 
 // Helper to encode trip data for share link
 export function serializeTripData(data: TripPlan): string {
@@ -21,6 +21,9 @@ export function deserializeTripData(encoded: string): TripPlan | null {
     const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
     const parsed = JSON.parse(jsonStr) as TripPlan;
     if (parsed && parsed.days && Array.isArray(parsed.days) && parsed.days.length > 0) {
+      if (parsed.days[0].title === '부산 알짜 당일치기 코스') {
+        parsed.days[0].title = '부산 여행 코스';
+      }
       return parsed;
     }
   } catch (e) {
@@ -49,10 +52,13 @@ export function useTripData() {
 
     // 2. Fallback to localStorage
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('busan_trip_data_1128_v5');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.days && parsed.days.length === 1) {
+          if (parsed.days[0].title === '부산 알짜 당일치기 코스') {
+            parsed.days[0].title = '부산 여행 코스';
+          }
           return parsed;
         }
       }

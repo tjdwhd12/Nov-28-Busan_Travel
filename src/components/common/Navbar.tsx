@@ -61,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isHost ? (
               <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/80 shadow-2xs">
                 <Crown className="w-3 h-3 text-amber-600" />
-                <span>총무(편집 권한)</span>
+                <span>관리자(편집 권한)</span>
               </span>
             ) : (
               <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
@@ -133,10 +133,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onOpenHostLogin}
                 className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0"
-                title="총무 비밀번호 입력하여 수정 권한 획득"
+                title="관리자 비밀번호 입력하여 수정 권한 획득"
               >
                 <KeyRound className="w-3.5 h-3.5 text-amber-600" />
-                <span className="hidden sm:inline">총무 로그인</span>
+                <span className="hidden sm:inline">관리자 로그인</span>
               </button>
             )}
 

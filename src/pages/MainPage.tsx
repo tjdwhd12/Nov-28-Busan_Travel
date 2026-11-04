@@ -44,7 +44,7 @@ export const MainPage: React.FC<MainPageProps> = ({
 
   return (
     <div className="flex-1 flex flex-col">
-      {/* 1. 총무의 친구 화면(보기 전용) 미리보기 상태 안내 배너 */}
+      {/* 1. 관리자의 친구 화면(보기 전용) 미리보기 상태 안내 배너 */}
       {isPreviewingAsViewer && (
         <div className="bg-amber-500 text-slate-950 px-4 py-2.5 text-xs sm:text-sm font-semibold sticky top-16 z-40 shadow-sm flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 max-w-2xl">
@@ -58,7 +58,7 @@ export const MainPage: React.FC<MainPageProps> = ({
             className="px-3 py-1 bg-slate-950 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors shrink-0 flex items-center gap-1"
           >
             <Crown className="w-3.5 h-3.5 text-amber-400" />
-            <span>총무 편집 모드로 복귀</span>
+            <span>관리자 편집 모드로 복귀</span>
           </button>
         </div>
       )}

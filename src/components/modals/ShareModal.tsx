@@ -12,7 +12,6 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { TripPlan } from '../../types/trip';
-import { DEFAULT_HOST_PIN } from '../../hooks/useTripRole';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -210,11 +209,11 @@ ${viewerUrl}
             </button>
           </div>
 
-          {/* Section 4: Host Controls & Friend Preview */}
+          {/* Section 4: Admin Controls & Friend Preview */}
           <div className="pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-1.5 text-slate-500">
               <Lock className="w-3.5 h-3.5 text-slate-400" />
-              <span>총무 인증 비밀번호: <strong className="text-slate-800">{DEFAULT_HOST_PIN}</strong></span>
+              <span>관리자 전용 편집 권한 보호 중</span>
             </div>
 
             <button

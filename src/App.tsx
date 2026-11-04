@@ -9,7 +9,6 @@ import { MainPage, PlaceDetailPage } from './pages';
 // [Components] 공통 네비게이션 및 모달
 import { Navbar } from './components/common/Navbar';
 import { MobileBottomBar } from './components/common/MobileBottomBar';
-import { Footer } from './components/common/Footer';
 import { PlaceEditorModal } from './components/editor/PlaceEditorModal';
 import { ShareModal } from './components/modals/ShareModal';
 import { HostAuthModal } from './components/auth/HostAuthModal';
@@ -23,7 +22,6 @@ export default function App() {
     addPlace,
     deletePlace,
     resetToDefault,
-    exportToJson,
     getEncodedTrip,
   } = useTripData();
 
@@ -72,7 +70,7 @@ export default function App() {
 
   const handleOpenEdit = (place: Place) => {
     if (!isHost) {
-      showToast('일정 수정은 총무(주최자)만 가능합니다.');
+      showToast('일정 수정은 관리자만 가능합니다.');
       return;
     }
     setEditDayNumber(1);
@@ -82,7 +80,7 @@ export default function App() {
 
   const handleOpenAdd = () => {
     if (!isHost) {
-      showToast('장소 추가는 총무(주최자)만 가능합니다.');
+      showToast('장소 추가는 관리자만 가능합니다.');
       return;
     }
     setEditDayNumber(1);
@@ -159,7 +157,7 @@ export default function App() {
         }}
       />
 
-      {/* 4. 장소 편집 및 추가 모달 (총무 전용) */}
+      {/* 4. 장소 편집 및 추가 모달 (관리자 전용) */}
       {isHost && (
         <PlaceEditorModal
           place={selectedEditPlace}
@@ -181,7 +179,7 @@ export default function App() {
         onPreviewFriendView={startViewerPreview}
       />
 
-      {/* 6. 총무 인증 (PIN 비밀번호: busan1128) 모달 */}
+      {/* 6. 관리자 인증 모달 */}
       <HostAuthModal
         isOpen={isHostAuthModalOpen}
         onClose={() => setIsHostAuthModalOpen(false)}
@@ -201,13 +199,7 @@ export default function App() {
         onTabChange={setCurrentTab}
       />
 
-      {/* 8. 하단 푸터 */}
-      <Footer
-        onExport={exportToJson}
-        onNavigate={setCurrentTab}
-      />
-
-      {/* 9. 토스트 알림 팝업 */}
+      {/* 8. 토스트 알림 팝업 */}
       {toastMessage && (
         <div className="fixed bottom-20 lg:bottom-8 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold animate-in fade-in slide-in-from-bottom-4 duration-200">
           <Sparkles className="w-4 h-4 text-sky-400 shrink-0" />

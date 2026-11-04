@@ -16,12 +16,12 @@ export const INITIAL_TRIP_DATA: TripPlan = {
   endDate: '2026.11.28',
   dDay: '2026-11-28',
   travelerCount: 5,
-  authorName: '총무 & 여행 플래너',
+  authorName: '관리자 & 여행 플래너',
   days: [
     {
       dayNumber: 1,
       date: '11월 28일 · 당일치기',
-      title: '부산여행',
+      title: '부산 여행 코스',
       subtitle: '부산역 집결 ➔ 든든한 돼지국밥 ➔ 영도 흰여울마을 ➔ 해운대 블루라인파크 ➔ 광안리 & 부산역 복귀',
       color: 'sky',
       places: [
