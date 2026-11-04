@@ -407,7 +407,7 @@ export const PlaceEditorModal: React.FC<PlaceEditorModalProps> = ({
               type="text"
               value={formData.summary}
               onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-              placeholder="친구들에게 소개할 간단한 한줄 요약"
+              placeholder="소개할 간단한 한줄 요약"
               className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:border-sky-500 font-medium"
             />
           </div>

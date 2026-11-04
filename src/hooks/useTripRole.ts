@@ -14,6 +14,7 @@ import { useState, useEffect, useCallback } from 'react';
 const ROLE_STORAGE_KEY = 'busan_trip_role_v1';
 const PIN_STORAGE_KEY = 'busan_trip_host_pin_v1';
 export const DEFAULT_HOST_PIN = '1128'; // 11/28 여행 날짜 기본 비밀번호
+export const DEPLOY_SITE_URL = 'https://lsjbusantrip.ai.studio'; // 배포 대상 공식 홈페이지 URL
 
 export type UserRole = 'host' | 'viewer';
 
@@ -109,10 +110,15 @@ export function useTripRole() {
     return false;
   }, []);
 
-  // Generate share URLs
+  // Generate share URLs matching official deployment domain (https://lsjbusantrip.ai.studio)
   const getShareUrl = useCallback((targetRole: 'viewer' | 'host', hashData?: string): string => {
-    if (typeof window === 'undefined') return '';
-    const url = new URL(window.location.href);
+    let url: URL;
+    try {
+      url = new URL(DEPLOY_SITE_URL);
+    } catch {
+      url = new URL(typeof window !== 'undefined' ? window.location.href : 'https://lsjbusantrip.ai.studio');
+    }
+
     // Set query parameter for role
     if (targetRole === 'viewer') {
       url.searchParams.set('mode', 'view');

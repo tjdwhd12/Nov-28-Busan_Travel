@@ -113,15 +113,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            {/* Host-only Action: Preview friend view toggle */}
+            {/* Host-only Action: Preview view toggle */}
             {isHost && onTogglePreview && (
               <button
                 onClick={onTogglePreview}
                 className="hidden lg:flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors whitespace-nowrap shrink-0"
-                title="친구들이 보는 화면 미리보기"
+                title="열람 화면 미리보기"
               >
                 <Eye className="w-3.5 h-3.5 text-sky-600" />
-                <span>친구 화면 미리보기</span>
+                <span>열람 화면 미리보기</span>
               </button>
             )}
 
@@ -137,13 +137,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            {/* Share Button (opens ShareModal with view-only friend link) */}
+            {/* Share Button (opens ShareModal with view-only link) */}
             <button
               onClick={onShare}
               className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-xs transition-colors whitespace-nowrap shrink-0 active:scale-95"
             >
               <Share2 className="w-3.5 h-3.5" />
-              <span><span className="hidden sm:inline">친구에게 </span>공유</span>
+              <span>공유하기</span>
             </button>
 
             {/* Host-only Action: Reset button */}

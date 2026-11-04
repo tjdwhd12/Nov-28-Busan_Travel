@@ -169,7 +169,7 @@ export default function App() {
         />
       )}
 
-      {/* 5. 친구 초대 및 카카오톡/링크 공유 모달 */}
+      {/* 5. 일정 공유 모달 */}
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}

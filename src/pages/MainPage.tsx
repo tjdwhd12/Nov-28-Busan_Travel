@@ -44,13 +44,13 @@ export const MainPage: React.FC<MainPageProps> = ({
 
   return (
     <div className="flex-1 flex flex-col">
-      {/* 1. 관리자의 친구 화면(보기 전용) 미리보기 상태 안내 배너 */}
+      {/* 1. 관리자의 열람 화면(보기 전용) 미리보기 상태 안내 배너 */}
       {isPreviewingAsViewer && (
         <div className="bg-amber-500 text-slate-950 px-4 py-2.5 text-xs sm:text-sm font-semibold sticky top-16 z-40 shadow-sm flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 max-w-2xl">
             <Eye className="w-4 h-4 shrink-0 text-slate-950" />
             <span>
-              [미리보기 중] 친구들에게 공유되었을 때 보게 될 <strong>열람 전용 화면(수정/추가 버튼 숨김)</strong>입니다.
+              [미리보기 중] 공유 링크로 접속했을 때 보게 될 <strong>열람 전용 화면(수정/추가 버튼 숨김)</strong>입니다.
             </span>
           </div>
           <button
