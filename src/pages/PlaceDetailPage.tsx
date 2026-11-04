@@ -20,8 +20,9 @@ import {
   AlertCircle,
   Camera,
   Utensils,
-  Lightbulb,
   Edit2,
+  CheckCircle2,
+  ShoppingBag,
 } from 'lucide-react';
 import { Place } from '../types/trip';
 import { CategoryBadge, BookingStatusBadge } from '../components/common/Badge';
@@ -97,14 +98,44 @@ export const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
               <span className="text-white/40" aria-hidden="true">·</span>
               <span className="text-xs text-white/90">{place.duration} 소요</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              {place.name}
-            </h2>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                {place.name}
+              </h2>
+              {place.isTbd && (
+                <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-400 text-amber-950 shadow-xs">
+                  장소 미정 (선정 중)
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
 
         <div className="p-6 sm:p-7 space-y-6">
+
+          {/* 할 일 / 구매 예정 섹션 */}
+          {place.plannedTask && (
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sky-50 to-indigo-50/80 border border-sky-200">
+              <div className="flex items-center gap-2 mb-1.5 text-xs font-bold text-sky-800 uppercase">
+                <CheckCircle2 className="w-4 h-4 text-sky-600" />
+                <span>할 일 및 구매 예정</span>
+              </div>
+              <p className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                {place.plannedTask}
+              </p>
+            </div>
+          )}
+
+          {/* 장소 미정 상태 안내 카드 */}
+          {place.isTbd && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 text-xs sm:text-sm leading-relaxed flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold">세부 장소 조율 중:</span> 아직 구체적인 식당/카페가 확정되지 않았으며 후보지 비교 중입니다. 확정 시 실시간으로 주소와 지도 링크가 업데이트됩니다!
+              </div>
+            </div>
+          )}
 
           {/* Quick Info Grid: 운영/방문 시간, 입장료, 예약 상태 */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
@@ -217,22 +248,39 @@ export const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
             </p>
           </div>
 
-          {/* Recommended Menu (if available) */}
+          {/* Recommended / Full Menu (if available) */}
           {place.recommendedMenu && place.recommendedMenu.length > 0 && (
             <div>
-              <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5 mb-2.5">
-                <Utensils className="w-4 h-4 text-orange-600" />
-                <span>추천 메뉴</span>
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {place.recommendedMenu.map((menu, i) => (
-                  <span
-                    key={i}
-                    className="text-xs font-semibold text-slate-800 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-xl shadow-2xs"
-                  >
-                    {menu}
+              <div className="flex items-center justify-between mb-2.5">
+                <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                  <Utensils className="w-4 h-4 text-orange-600" />
+                  <span>
+                    {place.category === 'cafe' ? '카페 전체 메뉴판' : '전체 및 추천 메뉴'}
                   </span>
-                ))}
+                </h4>
+                <span className="text-[11px] text-slate-400">총 {place.recommendedMenu.length}개 항목</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {place.recommendedMenu.map((menu, i) => {
+                  const isHighlight = menu.includes('구매 예정') || menu.includes('⭐');
+                  return (
+                    <div
+                      key={i}
+                      className={`text-xs px-3.5 py-2.5 rounded-xl border flex items-center gap-2 transition-colors ${
+                        isHighlight
+                          ? 'bg-amber-50/90 border-amber-300 text-amber-950 font-bold shadow-xs ring-1 ring-amber-300/60'
+                          : 'bg-slate-50 border-slate-200/80 text-slate-800 font-medium'
+                      }`}
+                    >
+                      {isHighlight ? (
+                        <ShoppingBag className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+                      )}
+                      <span className="leading-snug">{menu}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -258,20 +306,6 @@ export const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
             </div>
           )}
 
-          {/* Local Secret Tips */}
-          {place.tips && place.tips.length > 0 && (
-            <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80">
-              <h4 className="text-sm font-bold text-amber-950 flex items-center gap-1.5 mb-2">
-                <Lightbulb className="w-4 h-4 text-amber-600" />
-                <span>관리자의 핵심 꿀팁</span>
-              </h4>
-              <ul className="text-xs text-amber-900 space-y-1.5 list-disc list-inside">
-                {place.tips.map((tip, i) => (
-                  <li key={i}>{tip}</li>
-                ))}
-              </ul>
-            </div>
-          )}
 
           {/* Address Card */}
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 flex items-center justify-between gap-3">

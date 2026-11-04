@@ -3,7 +3,7 @@ import { TripPlan, Place } from '../types/trip';
 import { INITIAL_TRIP_DATA } from '../data/initialTripData';
 import { resolvePlaceImage } from '../assets/images';
 
-const STORAGE_KEY = 'busan_trip_data_1128_v9';
+const STORAGE_KEY = 'busan_trip_data_1128_v13';
 
 export function sanitizeTripImages(plan: TripPlan): TripPlan {
   if (!plan || !plan.days) return plan;
@@ -64,12 +64,12 @@ export function useTripData() {
       }
     }
 
-    // 2. Fallback to localStorage
+    // 2. Fallback to localStorage for v11
     try {
-      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('busan_trip_data_1128_v6') || localStorage.getItem('busan_trip_data_1128_v5');
+      const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.days && parsed.days.length === 1) {
+        if (parsed.days && parsed.days.length === 1 && parsed.days[0].places?.length >= 6) {
           return sanitizeTripImages(parsed);
         }
       }
@@ -77,7 +77,7 @@ export function useTripData() {
       console.warn('Failed to parse saved trip data from localStorage', e);
     }
 
-    // 3. Fallback to default 5-person initial data
+    // 3. Fallback to default initial data
     return INITIAL_TRIP_DATA;
   });
 

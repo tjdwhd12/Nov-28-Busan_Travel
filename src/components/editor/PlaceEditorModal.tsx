@@ -164,6 +164,33 @@ export const PlaceEditorModal: React.FC<PlaceEditorModalProps> = ({
             </div>
           </div>
 
+          {/* 할 일 / 구매 예정 & 미정 여부 체크 */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                방문 목적 / 할 일 / 구매 예정
+              </label>
+              <input
+                type="text"
+                value={formData.plannedTask || ''}
+                onChange={(e) => setFormData({ ...formData, plannedTask: e.target.value })}
+                placeholder="예: 초코모찌 구매예정 / 다같이 모이기 / 구경"
+                className="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-hidden focus:border-sky-500 font-medium text-xs bg-white"
+              />
+            </div>
+            <div className="flex items-center sm:pt-5">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={formData.isTbd || false}
+                  onChange={(e) => setFormData({ ...formData, isTbd: e.target.checked })}
+                  className="rounded text-sky-600 focus:ring-sky-500"
+                />
+                <span>장소 미정 (선정 중)</span>
+              </label>
+            </div>
+          </div>
+
           {/* 시간대 & 체류시간 */}
           <div className="grid grid-cols-3 gap-3">
             <div>

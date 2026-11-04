@@ -72,7 +72,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({ trip, onSelectPlac
               <span>관리자를 위한 스마트 정산 & 예산 계산기</span>
             </div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              예산 & 예매 현황 (5인 기준)
+              예산 & 예매 현황 ({friendsCount}인 기준)
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
               입장료, 식비, 액티비티, 숙소 비용을 인원수별로 자동 분할 계산합니다.

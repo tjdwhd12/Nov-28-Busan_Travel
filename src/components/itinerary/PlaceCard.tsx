@@ -103,9 +103,24 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({
           {/* Place Title, Summary & Thumbnail Row */}
           <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3">
             <div className="flex-1 min-w-0">
-              <h3 className="text-base sm:text-lg md:text-xl font-bold text-slate-900 group-hover:text-sky-600 transition-colors tracking-tight leading-snug mb-1">
-                {place.name}
-              </h3>
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-slate-900 group-hover:text-sky-600 transition-colors tracking-tight leading-snug">
+                  {place.name}
+                </h3>
+                {place.isTbd && (
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                    장소 선정 중 (미정)
+                  </span>
+                )}
+              </div>
+
+              {place.plannedTask && (
+                <div className="mb-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-100 text-xs text-sky-900 font-medium max-w-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+                  <span className="font-bold text-sky-950 shrink-0">할 일:</span>
+                  <span className="truncate">{place.plannedTask}</span>
+                </div>
+              )}
 
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-2 mb-2.5">
                 {place.summary}

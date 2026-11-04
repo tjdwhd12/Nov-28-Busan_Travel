@@ -58,6 +58,8 @@ export interface Place {
   tips?: string[];
   isSecret?: boolean; // For mystery mode (friends don't know yet)
   phone?: string;
+  isTbd?: boolean; // 장소 상세 미정 여부 (브런치카페, 방어횟집 등)
+  plannedTask?: string; // 괄호 안의 실제 방문 목적 / 할 일 / 구매 예정 내용
 }
 
 export interface DaySchedule {

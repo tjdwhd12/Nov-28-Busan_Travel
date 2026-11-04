@@ -5,13 +5,18 @@
 export function extractCleanSearchQuery(name: string, address?: string): string {
   const trimmed = name.trim();
 
-  // 1. 부산 코스 주요 명소별 정확한 공식 명칭 매핑
-  if (trimmed.includes('본전돼지국밥')) return '본전돼지국밥';
+  // 1. 부산 코스 주요 명소별 정확한 공식 명칭 및 주소 매핑
+  if (trimmed.includes('러버커피') || trimmed.includes('러버')) return '부산 부산진구 전포대로 208';
+  if (trimmed.includes('동백섬')) return '동백섬';
+  if (trimmed.includes('엑스더스카이') || trimmed.includes('x the sky')) return '부산엑스더스카이';
   if (trimmed.includes('스카이캡슐') || trimmed.includes('블루라인파크')) return '해운대블루라인파크 미포정거장';
+  if (trimmed.includes('부산역')) return '부산역';
+  if (trimmed.includes('브런치카페') || trimmed.includes('브런치')) return '부산 전포 브런치';
+  if (trimmed.includes('방어횟집') || trimmed.includes('방어')) return '해운대 미포 횟집';
+  if (trimmed.includes('본전돼지국밥')) return '본전돼지국밥';
   if (trimmed.includes('흰여울')) return '흰여울문화마을';
   if (trimmed.includes('민락더마켓')) return '민락더마켓';
   if (trimmed.includes('광안리')) return '광안리해수욕장';
-  if (trimmed.includes('부산역')) return '부산역';
   if (trimmed.includes('감천문화마을')) return '감천문화마을';
   if (trimmed.includes('자갈치')) return '자갈치시장';
   if (trimmed.includes('태종대')) return '태종대';
@@ -49,21 +54,30 @@ export function extractCleanSearchQuery(name: string, address?: string): string 
  * 등록된 주소 기반으로 지도 앱 검색 쿼리를 생성하는 함수
  * - 등록된 주소(address)가 있을 경우, 주소 내 부가설명 괄호(예: '(부산역사 2층)', '(미포정거장)')를
  *   제거한 정확한 표준 도로명/지번 주소로 검색합니다.
- * - 주소가 비어있을 경우 장소명 정제값을 대체 검색어로 사용합니다.
+ * - 장소 상세가 미정인 경우(브런치카페, 방어횟집), 추천 권역 검색어를 제공합니다.
  */
 export function getAddressSearchQuery(name: string, address?: string): string {
+  // 장소 상세 미정(TBD)인 경우 최적의 검색어 매핑
+  if (name.includes('브런치')) {
+    return '부산 전포 카페거리 브런치';
+  }
+  if (name.includes('방어') || name.includes('횟집')) {
+    return '해운대 미포 횟집';
+  }
+
   if (address && address.trim()) {
     const cleanAddress = address
       .replace(/\([^)]*\)/g, '')
       .replace(/\[[^\]]*\]/g, '')
+      .replace(/미정/g, '')
       .trim();
-    if (cleanAddress) {
+    if (cleanAddress && cleanAddress.length >= 5) {
       return cleanAddress;
     }
   }
 
-  // 주소가 없을 경우 장소명 정제값 사용
-  return extractCleanSearchQuery(name);
+  // 주소가 없거나 불완전할 경우 장소명 정제값 사용
+  return extractCleanSearchQuery(name, address);
 }
 
 /**
