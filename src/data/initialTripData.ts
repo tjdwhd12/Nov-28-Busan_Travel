@@ -21,7 +21,7 @@ export const INITIAL_TRIP_DATA: TripPlan = {
     {
       dayNumber: 1,
       date: '11월 28일 · 당일치기',
-      title: '부산 알짜 당일치기 코스',
+      title: '부산여행',
       subtitle: '부산역 집결 ➔ 든든한 돼지국밥 ➔ 영도 흰여울마을 ➔ 해운대 블루라인파크 ➔ 광안리 & 부산역 복귀',
       color: 'sky',
       places: [
