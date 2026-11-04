@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Compass,
+  Plane,
   Share2,
   PlusCircle,
   RotateCcw,
@@ -45,16 +45,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={() => onTabChange('day-1')}
-              className="flex items-center gap-2 text-left group transition-transform active:scale-95"
+              className="flex items-center gap-2 text-left group transition-all active:scale-95 focus:outline-none"
+              title="홈으로 이동"
             >
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-500 text-white flex items-center justify-center shadow-xs group-hover:bg-sky-600 transition-colors">
-                <Compass className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap">
-                  11/28 부산 여행
-                </span>
-              </div>
+              <Plane className="w-5 h-5 text-sky-600 group-hover:text-sky-700 transition-colors" />
+              <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors whitespace-nowrap">
+                11/28 부산 여행
+              </span>
             </button>
 
             {/* Role Chip Badge */}
