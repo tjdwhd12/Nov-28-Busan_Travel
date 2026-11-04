@@ -18,10 +18,10 @@ export const Footer: React.FC<FooterProps> = ({ onExport, onNavigate }) => {
               <div className="w-6 h-6 rounded-lg bg-sky-500 text-white flex items-center justify-center">
                 <Compass className="w-3.5 h-3.5" />
               </div>
-              <span>11/28 부산 여행</span>
+              <span>11월 28일 부산 여행</span>
             </div>
             <p className="text-slate-400 leading-relaxed">
-              친구들과 떠나는 맞춤형 부산 여행 코스, 장소별 상세 위치 및 네이버 지도 연동, 입장료 및 예매 정보 안내 시스템입니다.
+              11월 28일 부산 여행 플래너 및 장소 정보, 네이버·카카오·구글 지도 연동 안내 시스템입니다.
             </p>
             <div>
               <button

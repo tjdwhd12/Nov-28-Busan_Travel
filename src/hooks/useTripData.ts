@@ -3,12 +3,13 @@ import { TripPlan, Place } from '../types/trip';
 import { INITIAL_TRIP_DATA } from '../data/initialTripData';
 import { resolvePlaceImage } from '../assets/images';
 
-const STORAGE_KEY = 'busan_trip_data_1128_v8';
+const STORAGE_KEY = 'busan_trip_data_1128_v9';
 
 export function sanitizeTripImages(plan: TripPlan): TripPlan {
   if (!plan || !plan.days) return plan;
   return {
     ...plan,
+    title: plan.title === '11/28 부산 여행' ? '11월 28일 부산 여행' : (plan.title || '11월 28일 부산 여행'),
     days: plan.days.map((day) => ({
       ...day,
       title: day.title === '부산 알짜 당일치기 코스' ? '부산 여행 코스' : day.title,

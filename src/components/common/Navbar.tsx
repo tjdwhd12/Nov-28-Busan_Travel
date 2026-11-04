@@ -50,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Plane className="w-5 h-5 text-sky-600 group-hover:text-sky-700 transition-colors" />
               <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors whitespace-nowrap">
-                11/28 부산 여행
+                11월 28일 부산 여행
               </span>
             </button>
 

@@ -11,7 +11,7 @@ import { TripPlan } from '../types/trip';
 import { TRIP_IMAGES } from '../assets/images';
 
 export const INITIAL_TRIP_DATA: TripPlan = {
-  title: '11/28 부산 여행',
+  title: '11월 28일 부산 여행',
   destination: '부산광역시',
   startDate: '2026.11.28',
   endDate: '2026.11.28',
