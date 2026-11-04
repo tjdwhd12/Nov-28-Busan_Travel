@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { Place } from '../types/trip';
 import { CategoryBadge, BookingStatusBadge } from '../components/common/Badge';
-import { formatCurrency, getGoogleMapUrl } from '../utils/mapUtils';
+import { formatCurrency, getNaverMapUrl, getKakaoMapUrl, getGoogleMapUrl } from '../utils/mapUtils';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 
 export interface PlaceDetailPageProps {
@@ -307,20 +307,43 @@ export const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
 
           {/* Bottom Section: Google Map Location & Marker */}
           <div>
-            <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-sky-600" />
-                <span>구글 지도 위치 & 마커</span>
+                <span>지도 앱 길찾기</span>
               </h4>
-              <a
-                href={getGoogleMapUrl(place.name, place.coords.lat, place.coords.lng)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1 transition-colors"
-              >
-                <span>구글 지도 앱에서 열기</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+              <div className="flex items-center gap-1.5">
+                <a
+                  href={getNaverMapUrl(place.name, place.address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80 hover:bg-emerald-100 transition-colors flex items-center gap-1 cursor-pointer"
+                  title="네이버 지도에서 열기"
+                >
+                  <span>네이버</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+                <a
+                  href={getKakaoMapUrl(place.name, place.address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-amber-50 text-amber-800 border border-amber-200/80 hover:bg-amber-100 transition-colors flex items-center gap-1 cursor-pointer"
+                  title="카카오맵에서 열기"
+                >
+                  <span>카카오</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+                <a
+                  href={getGoogleMapUrl(place.name, place.coords.lat, place.coords.lng, place.address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-sky-50 text-sky-700 border border-sky-200/80 hover:bg-sky-100 transition-colors flex items-center gap-1 cursor-pointer"
+                  title="구글 지도에서 열기"
+                >
+                  <span>구글</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              </div>
             </div>
 
             {/* Google Map Viewport */}

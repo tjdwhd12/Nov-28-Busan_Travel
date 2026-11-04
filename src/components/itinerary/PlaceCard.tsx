@@ -168,42 +168,42 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({
               <div className="flex items-center gap-1 sm:gap-1.5 flex-1 min-w-0">
                 <span className="hidden sm:inline text-[11px] text-slate-500 font-semibold mr-1">지도 앱:</span>
                 
-                {/* Google Map Link */}
-                <a
-                  href={getGoogleMapUrl(place.name, place.coords.lat, place.coords.lng)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-sky-50 text-sky-700 border border-sky-200/80 hover:bg-sky-100 transition-colors flex items-center justify-center gap-1"
-                  title="구글 지도에서 길찾기"
-                >
-                  <span>구글</span>
-                  <ExternalLink className="w-2.5 h-2.5 hidden sm:inline" />
-                </a>
-
-                {/* Naver Map Link */}
+                {/* 1. Naver Map Link */}
                 <a
                   href={getNaverMapUrl(place.name, place.address)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-1"
+                  className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-1 cursor-pointer"
                   title="네이버 지도에서 열기"
                 >
                   <span>네이버</span>
                   <ExternalLink className="w-2.5 h-2.5 hidden sm:inline" />
                 </a>
 
-                {/* Kakao Map Link */}
+                {/* 2. Kakao Map Link */}
                 <a
-                  href={getKakaoMapUrl(place.name)}
+                  href={getKakaoMapUrl(place.name, place.address)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-800 border border-amber-200/80 hover:bg-amber-100 transition-colors flex items-center justify-center gap-1"
+                  className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-800 border border-amber-200/80 hover:bg-amber-100 transition-colors flex items-center justify-center gap-1 cursor-pointer"
                   title="카카오맵에서 열기"
                 >
                   <span>카카오</span>
+                  <ExternalLink className="w-2.5 h-2.5 hidden sm:inline" />
+                </a>
+
+                {/* 3. Google Map Link */}
+                <a
+                  href={getGoogleMapUrl(place.name, place.coords.lat, place.coords.lng, place.address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-sky-50 text-sky-700 border border-sky-200/80 hover:bg-sky-100 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  title="구글 지도에서 열기"
+                >
+                  <span>구글</span>
                   <ExternalLink className="w-2.5 h-2.5 hidden sm:inline" />
                 </a>
               </div>
