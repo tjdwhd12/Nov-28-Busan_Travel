@@ -13,7 +13,8 @@ import { Trip, Place } from '../types/trip';
 import { DayTimeline } from '../components/itinerary/DayTimeline';
 import { BusanCourseMap } from '../components/map/BusanCourseMap';
 import { BudgetSummary } from '../components/info/BudgetSummary';
-import { MapPin, Calendar, DollarSign, Eye, Crown, Shield } from 'lucide-react';
+import { ParkingGuide } from '../components/parking/ParkingGuide';
+import { MapPin, Calendar, DollarSign, Car, Eye, Crown, Shield } from 'lucide-react';
 
 export interface MainPageProps {
   trip: Trip;
@@ -115,8 +116,8 @@ export const MainPage: React.FC<MainPageProps> = ({
               </h1>
             </div>
 
-            {/* 네비게이션 탭 바 (모바일 반응형 그리드 & 데스크톱 플렉스) */}
-            <div className="grid grid-cols-3 w-full sm:w-auto sm:flex items-center gap-1 p-1 bg-slate-100 rounded-xl shrink-0">
+            {/* 네비게이션 탭 바 (모바일 반응형 4분할 그리드 & 데스크톱 플렉스) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 w-full sm:w-auto sm:flex items-center gap-1 p-1 bg-slate-100 rounded-xl shrink-0">
               <button
                 onClick={() => onTabChange('day-1')}
                 className={`px-2 sm:px-3.5 py-2 rounded-lg text-xs font-bold transition-all justify-center flex items-center gap-1.5 ${
@@ -138,6 +139,17 @@ export const MainPage: React.FC<MainPageProps> = ({
               >
                 <MapPin className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                 <span className="truncate">코스 지도</span>
+              </button>
+              <button
+                onClick={() => onTabChange('parking')}
+                className={`px-2 sm:px-3.5 py-2 rounded-lg text-xs font-bold transition-all justify-center flex items-center gap-1.5 ${
+                  currentTab === 'parking'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Car className="w-3.5 h-3.5 text-orange-600 shrink-0" />
+                <span className="truncate">주차장</span>
               </button>
               <button
                 onClick={() => onTabChange('budget')}
@@ -176,7 +188,12 @@ export const MainPage: React.FC<MainPageProps> = ({
             />
           )}
 
-          {/* 탭 3: 5인 회비 정산 및 예산/예매 현황 */}
+          {/* 탭 3: 자차 여행 코스별 주차장 가이드 */}
+          {currentTab === 'parking' && (
+            <ParkingGuide />
+          )}
+
+          {/* 탭 4: 5인 회비 정산 및 예산/예매 현황 */}
           {currentTab === 'budget' && (
             <BudgetSummary
               trip={trip}

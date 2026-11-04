@@ -3,7 +3,7 @@ import { TripPlan, Place } from '../types/trip';
 import { INITIAL_TRIP_DATA } from '../data/initialTripData';
 import { resolvePlaceImage } from '../assets/images';
 
-const STORAGE_KEY = 'busan_trip_data_1128_v13';
+const STORAGE_KEY = 'busan_trip_data_1128_v14';
 
 export function sanitizeTripImages(plan: TripPlan): TripPlan {
   if (!plan || !plan.days) return plan;

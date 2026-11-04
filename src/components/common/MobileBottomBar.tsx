@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, MapPin, Calculator } from 'lucide-react';
+import { Calendar, MapPin, Car, Calculator } from 'lucide-react';
 
 interface MobileBottomBarProps {
   currentTab: string;
@@ -10,12 +10,13 @@ export const MobileBottomBar: React.FC<MobileBottomBarProps> = ({ currentTab, on
   const tabs = [
     { id: 'day-1', label: '당일 코스', icon: Calendar },
     { id: 'map', label: '코스 지도', icon: MapPin },
+    { id: 'parking', label: '주차장', icon: Car },
     { id: 'budget', label: '예산·예매', icon: Calculator },
   ];
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-slate-200">
-      <div className="grid grid-cols-3 items-center h-16 max-w-sm mx-auto px-4">
+      <div className="grid grid-cols-4 items-center h-16 max-w-md mx-auto px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = currentTab === tab.id;

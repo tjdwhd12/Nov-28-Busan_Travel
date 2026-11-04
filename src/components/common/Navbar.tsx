@@ -7,6 +7,7 @@ import {
   Calendar,
   MapPin,
   DollarSign,
+  Car,
   Crown,
   Eye,
   KeyRound,
@@ -87,6 +88,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <MapPin className="w-3.5 h-3.5 text-indigo-600" />
               <span>코스 지도</span>
+            </button>
+            <button
+              onClick={() => onTabChange('parking')}
+              className={`px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+                currentTab === 'parking' ? 'bg-sky-50 text-sky-700 font-semibold' : 'hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              <Car className="w-3.5 h-3.5 text-orange-600" />
+              <span>주차장</span>
             </button>
             <button
               onClick={() => onTabChange('budget')}

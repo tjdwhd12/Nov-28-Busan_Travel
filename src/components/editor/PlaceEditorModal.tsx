@@ -52,7 +52,7 @@ export const PlaceEditorModal: React.FC<PlaceEditorModalProps> = ({
   useEffect(() => {
     if (place) {
       setFormData(place);
-      setRecommendedMenuInput(place.recommendedMenu?.join(', ') || '');
+      setRecommendedMenuInput(place.recommendedMenu?.join('\n') || '');
       setPhotoSpotsInput(place.photoSpots?.join(', ') || '');
       setTipsInput(place.tips?.join(', ') || '');
     } else {
@@ -91,7 +91,10 @@ export const PlaceEditorModal: React.FC<PlaceEditorModalProps> = ({
     const updated: Place = {
       ...formData,
       recommendedMenu: recommendedMenuInput
-        ? recommendedMenuInput.split(',').map((s) => s.trim()).filter(Boolean)
+        ? (recommendedMenuInput.includes('\n')
+            ? recommendedMenuInput.split('\n')
+            : recommendedMenuInput.split(',')
+          ).map((s) => s.trim()).filter(Boolean)
         : undefined,
       photoSpots: photoSpotsInput
         ? photoSpotsInput.split(',').map((s) => s.trim()).filter(Boolean)
@@ -456,14 +459,14 @@ export const PlaceEditorModal: React.FC<PlaceEditorModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                추천 메뉴 (쉼표 구분)
+                전체 및 추천 메뉴 (줄바꿈 또는 쉼표)
               </label>
-              <input
-                type="text"
+              <textarea
+                rows={2}
                 value={recommendedMenuInput}
                 onChange={(e) => setRecommendedMenuInput(e.target.value)}
-                placeholder="물밀면, 비빔밀면, 만두"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200"
+                placeholder="메뉴명 (금액) - 설명"
+                className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs"
               />
             </div>
             <div>
