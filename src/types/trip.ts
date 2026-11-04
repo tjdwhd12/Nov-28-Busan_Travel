@@ -1,3 +1,11 @@
+/**
+ * ========================================================
+ * [JS / 타입 정의 모듈 (TypeScript)]
+ * - 파일 위치: src/types/trip.ts
+ * - 역할: 장소(Place), 당일 일정(DaySchedule), 전체 계획(TripPlan), 카테고리(Category) 등 타입 정의
+ * ========================================================
+ */
+
 export type Category =
   | 'sightseeing' // 관광명소
   | 'food'        // 맛집/식사
@@ -79,3 +87,5 @@ export interface TripPlan {
   days: DaySchedule[];
   checklist?: ChecklistItem[];
 }
+
+export type Trip = TripPlan;

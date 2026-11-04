@@ -1,24 +1,5 @@
-@import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
-
-@layer base {
-  body {
-    font-family: "Pretendard Variable", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-  }
-}
-
-/* Custom smooth scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.7);
-}
+/* 
+ * 루트 스타일 진입점
+ * 실제 스타일 수정은 'src/styles/index.css' 에서 진행하시면 됩니다.
+ */
+@import "./styles/index.css";

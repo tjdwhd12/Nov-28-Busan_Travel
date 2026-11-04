@@ -1,0 +1,40 @@
+/* ========================================================
+   [CSS / 디자인 스타일 정의]
+   - 전체 웹사이트의 폰트, 색상, 스크롤바, 애니메이션 스타일
+   - GitHub에서 디자인 수정 시 이 폴더의 파일을 수정하시면 됩니다.
+   ======================================================== */
+
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    font-family: "Pretendard Variable", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* 커스텀 부드러운 스크롤바 디자인 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+/* 터치 모바일 최적화 */
+@media (max-width: 640px) {
+  .touch-scroll-x {
+    -webkit-overflow-scrolling: touch;
+  }
+}

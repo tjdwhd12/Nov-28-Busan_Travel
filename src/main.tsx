@@ -1,6 +1,6 @@
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
-import './index.css';
+import './styles/index.css';
 
 // Google Maps Platform Quota Defense
 (window as any).gm_authFailure = () => {
