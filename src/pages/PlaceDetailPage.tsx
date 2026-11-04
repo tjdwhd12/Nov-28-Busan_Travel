@@ -26,6 +26,7 @@ import {
 import { Place } from '../types/trip';
 import { CategoryBadge, BookingStatusBadge } from '../components/common/Badge';
 import { formatCurrency, getNaverMapUrl, getKakaoMapUrl, getGoogleMapUrl } from '../utils/mapUtils';
+import { resolvePlaceImage } from '../assets/images';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 
 export interface PlaceDetailPageProps {
@@ -78,42 +79,30 @@ export const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
         </button>
 
         {/* Hero Image Section */}
-        {place.imageUrl ? (
-          <div className="relative h-56 sm:h-64 w-full overflow-hidden rounded-t-3xl bg-slate-100">
-            <img
-              src={place.imageUrl}
-              alt={place.name}
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-            <div className="absolute bottom-4 left-6 right-6 text-white">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs uppercase tracking-wider font-semibold text-sky-300">
-                  {place.area}
-                </span>
-                <span className="text-white/40" aria-hidden="true">·</span>
-                <span className="text-xs text-white/90">{place.duration} 소요</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                {place.name}
-              </h2>
+        <div className="relative h-56 sm:h-64 w-full overflow-hidden rounded-t-3xl bg-slate-100">
+          <img
+            src={resolvePlaceImage(place.imageUrl, place.id, place.name)}
+            alt={place.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = resolvePlaceImage('', place.id, place.name);
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+          <div className="absolute bottom-4 left-6 right-6 text-white">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs uppercase tracking-wider font-semibold text-sky-300">
+                {place.area}
+              </span>
+              <span className="text-white/40" aria-hidden="true">·</span>
+              <span className="text-xs text-white/90">{place.duration} 소요</span>
             </div>
-          </div>
-        ) : (
-          <div className="px-6 pt-6 pb-2 border-b border-slate-100">
-            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mb-1.5">
-              <span>{place.area}</span>
-              <span aria-hidden="true">·</span>
-              <CategoryBadge category={place.category} />
-              <span aria-hidden="true">·</span>
-              <span>소요시간 {place.duration}</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               {place.name}
             </h2>
           </div>
-        )}
+        </div>
+
 
         <div className="p-6 sm:p-7 space-y-6">
 

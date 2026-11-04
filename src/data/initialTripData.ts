@@ -8,6 +8,7 @@
  */
 
 import { TripPlan } from '../types/trip';
+import { TRIP_IMAGES } from '../assets/images';
 
 export const INITIAL_TRIP_DATA: TripPlan = {
   title: '11/28 부산 여행',
@@ -35,6 +36,7 @@ export const INITIAL_TRIP_DATA: TripPlan = {
           area: '부산역 / 초량',
           address: '부산 동구 중앙대로 206',
           coords: { lat: 35.1152, lng: 129.0422, mapX: 42, mapY: 62 },
+          imageUrl: TRIP_IMAGES.busanStation,
           summary: 'KTX 도착 후 역사 내 물품보관함 가벼운 짐 보관 및 단체 집결',
           description: 'KTX 타고 부산역 대합실에 전원 집결! 무거운 짐은 부산역 코인라커에 보관하고 가볍게 출발합니다.',
           feeInfo: {
@@ -61,6 +63,7 @@ export const INITIAL_TRIP_DATA: TripPlan = {
           area: '부산역 / 초량',
           address: '부산 동구 중앙대로214번길 3-8',
           coords: { lat: 35.1161, lng: 129.0418, mapX: 43, mapY: 61 },
+          imageUrl: TRIP_IMAGES.gukbap,
           summary: '30년 전통 맑고 깊은 국물의 부산 대표 돼지국밥 맛집',
           description: '잡내 없이 깔끔하고 담백한 육수에 푸짐한 수육이 일품입니다. 부추 겉절이를 듬뿍 넣고 새우젓으로 간을 맞춰 먹는 것이 현지인 스타일!',
           feeInfo: {
@@ -91,7 +94,7 @@ export const INITIAL_TRIP_DATA: TripPlan = {
           coords: { lat: 35.0788, lng: 129.0461, mapX: 45, mapY: 76 },
           summary: '영화 <변호인> 촬영지이자 절벽 위 바다를 내려다보는 한국의 산토리니',
           description: '바다 바로 앞 가파른 절벽을 따라 흰 페인트의 작은 가옥들과 아기자기한 카페, 소품샵들이 늘어선 골목입니다. 해안터널 끝에서 인생샷을 찍고 오션뷰 카페에서 커피 한잔!',
-          imageUrl: '/src/assets/images/busan_huinnyeoul_village_1793758243637.jpg',
+          imageUrl: TRIP_IMAGES.huinnyeoulVillage,
           feeInfo: {
             hasFee: false,
             costPerPerson: 6000,
@@ -120,7 +123,7 @@ export const INITIAL_TRIP_DATA: TripPlan = {
           coords: { lat: 35.1587, lng: 129.1728, mapX: 82, mapY: 46 },
           summary: '해안 절벽 위 공중 레일을 달리는 레트로 컬러 캡슐 (사전예약 완료!)',
           description: '탁 트인 동해 바다 뷰를 프라이빗한 컬러풀 캡슐 안에서 30분간 감상하는 부산 최고의 필수 코스입니다. (5인 기준: 캡슐 1대당 최대 4인승 규정으로 3인승 1대 + 2인승 1대 총 2대 탑승)',
-          imageUrl: '/src/assets/images/busan_blueline_skycapsule_1793758242836.jpg',
+          imageUrl: TRIP_IMAGES.skyCapsule,
           feeInfo: {
             hasFee: true,
             costPerPerson: 15800,
@@ -154,7 +157,7 @@ export const INITIAL_TRIP_DATA: TripPlan = {
           coords: { lat: 35.1558, lng: 129.1275, mapX: 71, mapY: 51 },
           summary: '해질녘 노을과 광안대교 뷰 & 활어회와 핫플레이스 민락더마켓',
           description: '노을 지는 광안대교 바다를 감상하며 싱싱한 제철 활어회와 매운탕 저녁 만찬을 즐깁니다. 식사 후 민락더마켓에서 디저트와 버터맥주 구경!',
-          imageUrl: '/src/assets/images/busan_gwangan_bridge_night_1793758242245.jpg',
+          imageUrl: TRIP_IMAGES.gwanganBridge,
           feeInfo: {
             hasFee: true,
             costPerPerson: 25000,
@@ -181,6 +184,7 @@ export const INITIAL_TRIP_DATA: TripPlan = {
           area: '동구 / 부산역',
           address: '부산 동구 중앙대로 206 (부산역사 2층)',
           coords: { lat: 35.1152, lng: 129.0422, mapX: 42, mapY: 62 },
+          imageUrl: TRIP_IMAGES.busanStation,
           summary: '보관했던 짐 찾기, 삼진어묵 고로케 선물 포장 후 귀가 KTX 탑승',
           description: '부산역 물품보관함에서 짐을 찾고 2층 삼진어묵 베이커리에서 따끈한 어묵고로케와 선물 세트를 구매합니다. KTX 타고 서울/집으로 복귀하며 당일치기 완벽 마무리!',
           feeInfo: {

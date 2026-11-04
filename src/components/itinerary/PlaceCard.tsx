@@ -15,6 +15,7 @@ import {
 import { Place, TransportType } from '../../types/trip';
 import { CategoryBadge, BookingStatusBadge } from '../common/Badge';
 import { getNaverMapUrl, getKakaoMapUrl, getGoogleMapUrl, formatCurrency } from '../../utils/mapUtils';
+import { resolvePlaceImage } from '../../assets/images';
 
 interface PlaceCardProps {
   place: Place;
@@ -126,16 +127,17 @@ export const PlaceCard: React.FC<PlaceCardProps> = ({
             </div>
 
             {/* Thumbnail Image */}
-            {place.imageUrl && (
-              <div className="w-20 h-20 sm:w-32 sm:h-24 md:w-36 md:h-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 shadow-2xs">
-                <img
-                  src={place.imageUrl}
-                  alt={place.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-            )}
+            <div className="w-20 h-20 sm:w-32 sm:h-24 md:w-36 md:h-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 shadow-2xs">
+              <img
+                src={resolvePlaceImage(place.imageUrl, place.id, place.name)}
+                alt={place.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = resolvePlaceImage('', place.id, place.name);
+                }}
+              />
+            </div>
           </div>
 
           {/* Fee & Booking Status Bar */}

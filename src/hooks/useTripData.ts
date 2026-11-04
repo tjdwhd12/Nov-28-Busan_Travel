@@ -1,8 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TripPlan, Place } from '../types/trip';
 import { INITIAL_TRIP_DATA } from '../data/initialTripData';
+import { resolvePlaceImage } from '../assets/images';
 
-const STORAGE_KEY = 'busan_trip_data_1128_v6';
+const STORAGE_KEY = 'busan_trip_data_1128_v8';
+
+export function sanitizeTripImages(plan: TripPlan): TripPlan {
+  if (!plan || !plan.days) return plan;
+  return {
+    ...plan,
+    days: plan.days.map((day) => ({
+      ...day,
+      title: day.title === '부산 알짜 당일치기 코스' ? '부산 여행 코스' : day.title,
+      places: day.places.map((place) => ({
+        ...place,
+        imageUrl: resolvePlaceImage(place.imageUrl, place.id, place.name),
+      })),
+    })),
+  };
+}
 
 // Helper to encode trip data for share link
 export function serializeTripData(data: TripPlan): string {
@@ -21,10 +37,7 @@ export function deserializeTripData(encoded: string): TripPlan | null {
     const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
     const parsed = JSON.parse(jsonStr) as TripPlan;
     if (parsed && parsed.days && Array.isArray(parsed.days) && parsed.days.length > 0) {
-      if (parsed.days[0].title === '부산 알짜 당일치기 코스') {
-        parsed.days[0].title = '부산 여행 코스';
-      }
-      return parsed;
+      return sanitizeTripImages(parsed);
     }
   } catch (e) {
     console.warn('Deserialization error', e);
@@ -52,14 +65,11 @@ export function useTripData() {
 
     // 2. Fallback to localStorage
     try {
-      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('busan_trip_data_1128_v5');
+      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('busan_trip_data_1128_v6') || localStorage.getItem('busan_trip_data_1128_v5');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.days && parsed.days.length === 1) {
-          if (parsed.days[0].title === '부산 알짜 당일치기 코스') {
-            parsed.days[0].title = '부산 여행 코스';
-          }
-          return parsed;
+          return sanitizeTripImages(parsed);
         }
       }
     } catch (e) {
