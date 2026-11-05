@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TripPlan, Place } from '../types/trip';
+import { TripPlan, Place, ExtraExpense, FeeInfo } from '../types/trip';
 import { INITIAL_TRIP_DATA } from '../data/initialTripData';
 import { resolvePlaceImage } from '../assets/images';
 
-const STORAGE_KEY = 'busan_trip_data_1128_v14';
+const STORAGE_KEY = 'busan_trip_data_1128_v15';
 
 export function sanitizeTripImages(plan: TripPlan): TripPlan {
   if (!plan || !plan.days) return plan;
@@ -166,6 +166,50 @@ export function useTripData() {
     return false;
   };
 
+  const addExtraExpense = (expense: Omit<ExtraExpense, 'id'>) => {
+    const newExpense: ExtraExpense = {
+      ...expense,
+      id: 'ext_' + Date.now(),
+    };
+    setTrip(prev => ({
+      ...prev,
+      extraExpenses: [...(prev.extraExpenses || []), newExpense],
+    }));
+  };
+
+  const deleteExtraExpense = (id: string) => {
+    setTrip(prev => ({
+      ...prev,
+      extraExpenses: (prev.extraExpenses || []).filter(e => e.id !== id),
+    }));
+  };
+
+  const updatePlaceFeeInfo = (placeId: string, feeInfoUpdates: Partial<FeeInfo>) => {
+    setTrip(prev => ({
+      ...prev,
+      days: prev.days.map(day => ({
+        ...day,
+        places: day.places.map(p => {
+          if (p.id !== placeId) return p;
+          const merged: FeeInfo = {
+            ...p.feeInfo,
+            ...feeInfoUpdates,
+          };
+          // Auto set hasFee true if costPerPerson > 0
+          if (merged.costPerPerson > 0) {
+            merged.hasFee = true;
+          } else if (merged.costPerPerson === 0 && merged.bookingStatus === 'free') {
+            merged.hasFee = false;
+          }
+          return {
+            ...p,
+            feeInfo: merged,
+          };
+        }),
+      })),
+    }));
+  };
+
   const getEncodedTrip = useCallback(() => {
     return serializeTripData(trip);
   }, [trip]);
@@ -173,8 +217,11 @@ export function useTripData() {
   return {
     trip,
     updatePlace,
+    updatePlaceFeeInfo,
     addPlace,
     deletePlace,
+    addExtraExpense,
+    deleteExtraExpense,
     updateTripMeta,
     resetToDefault,
     exportToJson,

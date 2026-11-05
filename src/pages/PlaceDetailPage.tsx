@@ -55,14 +55,27 @@ export function parseMenuItem(raw: string): ParsedMenuItem {
     description = parts.slice(1).join(' - ').trim();
   }
 
-  // 2. Extract price inside parentheses e.g. (16,000원) or (4,500원)
+  // 2. Extract price inside parentheses e.g. (16,000원) or (55,000원~) or (소 55,000 / 중 75,000 ...)
   const parenMatch = name.match(/\(([^)]*(?:원|변동|무료|\d+)[^)]*)\)/);
   if (parenMatch) {
-    price = parenMatch[1].trim();
+    const rawInside = parenMatch[1].trim();
     name = name.replace(parenMatch[0], '').trim();
+
+    // If price inside parentheses is a multi-tier list (contains '/' or is very long)
+    if (rawInside.includes('/') || rawInside.length > 18) {
+      const firstNum = rawInside.match(/\d{1,3}(?:,\d{3})*/);
+      if (firstNum) {
+        price = `${firstNum[0]}원~`;
+      } else {
+        price = rawInside;
+      }
+      description = description ? `${description} (${rawInside})` : rawInside;
+    } else {
+      price = rawInside;
+    }
   } else {
     // 3. Match end of name price e.g. 4,500원
-    const endPriceMatch = name.match(/(\d{1,3}(?:,\d{3})*원(?:\s*~\s*\d{1,3}(?:,\d{3})*원)?)$/);
+    const endPriceMatch = name.match(/(\d{1,3}(?:,\d{3})*원(?:\s*~\s*\d{1,3}(?:,\d{3})*원|\+)?)$/);
     if (endPriceMatch) {
       price = endPriceMatch[1].trim();
       name = name.substring(0, endPriceMatch.index).trim();
@@ -330,17 +343,19 @@ export const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
                           : 'bg-slate-50/80 border-slate-200/90 text-slate-800'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex items-center gap-1.5 flex-wrap">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="min-w-0 flex-1">
                           {item.isHighlight && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-200/90 text-amber-950 font-extrabold text-[10px] shrink-0 shadow-2xs">
-                              <ShoppingBag className="w-3 h-3 text-amber-700" />
-                              <span>구매 예정!</span>
-                            </span>
+                            <div className="mb-1">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-200/90 text-amber-950 font-extrabold text-[10px] shadow-2xs">
+                                <ShoppingBag className="w-3 h-3 text-amber-700" />
+                                <span>구매 예정!</span>
+                              </span>
+                            </div>
                           )}
-                          <span className="font-bold text-slate-900 text-xs sm:text-[13px]">
+                          <h5 className="font-bold text-slate-900 text-xs sm:text-[13px] leading-snug">
                             {item.name}
-                          </span>
+                          </h5>
                         </div>
 
                         {item.price && (
@@ -357,7 +372,7 @@ export const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
                       </div>
 
                       {item.description && (
-                        <div className="text-[11px] text-slate-500 font-normal leading-snug pl-0.5">
+                        <div className="text-[11px] text-slate-600 font-medium leading-relaxed bg-white/80 p-2 rounded-xl border border-slate-100">
                           {item.description}
                         </div>
                       )}

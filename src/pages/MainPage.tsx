@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { Trip, Place } from '../types/trip';
+import { Trip, Place, ExtraExpense, FeeInfo } from '../types/trip';
 import { DayTimeline } from '../components/itinerary/DayTimeline';
 import { BusanCourseMap } from '../components/map/BusanCourseMap';
 import { BudgetSummary } from '../components/info/BudgetSummary';
@@ -27,6 +27,9 @@ export interface MainPageProps {
   onOpenEdit: (place: Place) => void;
   onOpenAdd: () => void;
   onStopViewerPreview: () => void;
+  onAddExtraExpense?: (item: Omit<ExtraExpense, 'id'>) => void;
+  onDeleteExtraExpense?: (id: string) => void;
+  onUpdatePlaceFeeInfo?: (placeId: string, feeInfo: Partial<FeeInfo>) => void;
 }
 
 export const MainPage: React.FC<MainPageProps> = ({
@@ -40,6 +43,9 @@ export const MainPage: React.FC<MainPageProps> = ({
   onOpenEdit,
   onOpenAdd,
   onStopViewerPreview,
+  onAddExtraExpense,
+  onDeleteExtraExpense,
+  onUpdatePlaceFeeInfo,
 }) => {
   const activeDay = trip.days[0];
 
@@ -198,6 +204,10 @@ export const MainPage: React.FC<MainPageProps> = ({
             <BudgetSummary
               trip={trip}
               onSelectPlace={onOpenDetail}
+              isHost={isHost}
+              onAddExtraExpense={onAddExtraExpense}
+              onDeleteExtraExpense={onDeleteExtraExpense}
+              onUpdatePlaceFeeInfo={onUpdatePlaceFeeInfo}
             />
           )}
 

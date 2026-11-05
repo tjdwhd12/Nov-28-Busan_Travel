@@ -78,6 +78,14 @@ export interface ChecklistItem {
   isChecked: boolean;
 }
 
+export interface ExtraExpense {
+  id: string;
+  title: string;        // 항목명 (예: 고속도로 톨게이트비, 공영주차장 주차비, 주유비, 간식비)
+  amount: number;       // 총 금액 (원)
+  category: 'transport' | 'parking' | 'food' | 'etc';
+  note?: string;        // 메모/설명
+}
+
 export interface TripPlan {
   title: string;
   destination: string;
@@ -88,6 +96,7 @@ export interface TripPlan {
   dDay: string; // ISO date string e.g. "2026-11-14"
   days: DaySchedule[];
   checklist?: ChecklistItem[];
+  extraExpenses?: ExtraExpense[];
 }
 
 export type Trip = TripPlan;

@@ -19,8 +19,11 @@ export default function App() {
   const {
     trip,
     updatePlace,
+    updatePlaceFeeInfo,
     addPlace,
     deletePlace,
+    addExtraExpense,
+    deleteExtraExpense,
     resetToDefault,
     getEncodedTrip,
   } = useTripData();
@@ -142,6 +145,18 @@ export default function App() {
         onOpenEdit={handleOpenEdit}
         onOpenAdd={handleOpenAdd}
         onStopViewerPreview={stopViewerPreview}
+        onAddExtraExpense={(item) => {
+          addExtraExpense(item);
+          showToast('기타 경비 항목이 등록되었습니다! 💰');
+        }}
+        onDeleteExtraExpense={(id) => {
+          deleteExtraExpense(id);
+          showToast('기타 경비 항목이 삭제되었습니다.');
+        }}
+        onUpdatePlaceFeeInfo={(placeId, feeInfo) => {
+          updatePlaceFeeInfo(placeId, feeInfo);
+          showToast('예약 항목의 금액 및 내용이 수정되었습니다! ✍️');
+        }}
       />
 
       {/* 3. [상세페이지] 장소 세부 정보 모달 (src/pages/PlaceDetailPage.tsx) */}
