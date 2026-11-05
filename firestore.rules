@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidTrip(data) {
+      return data.title is string && data.title.size() <= 200 &&
+             data.days is list && data.days.size() > 0 && data.days.size() <= 30;
+    }
+
+    // Shared Busan Trip Collection
+    match /trips/{tripId} {
+      // All trip participants can read the real-time shared trip itinerary
+      allow read: if isValidId(tripId);
+
+      // Validated writes for saving updates and new expenses
+      allow create, update: if isValidId(tripId) && isValidTrip(request.resource.data);
+      allow delete: if false;
+    }
+  }
+}

@@ -12,6 +12,7 @@ import {
   Eye,
   KeyRound,
   Shield,
+  Cloud,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -24,6 +25,8 @@ interface NavbarProps {
   isPreviewingAsViewer?: boolean;
   onOpenHostLogin?: () => void;
   onTogglePreview?: () => void;
+  isCloudConnected?: boolean;
+  isSyncing?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -36,6 +39,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   isPreviewingAsViewer = false,
   onOpenHostLogin,
   onTogglePreview,
+  isCloudConnected = true,
+  isSyncing = false,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
@@ -65,6 +70,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
                 <Shield className="w-3 h-3 text-emerald-600" />
                 <span>열람 전용 모드</span>
+              </span>
+            )}
+
+            {/* Cloud Real-time Sync Indicator */}
+            {isCloudConnected && (
+              <span
+                className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-800 border border-sky-200 shadow-2xs"
+                title="모든 기기와 실시간 자동 동기화 중"
+              >
+                <Cloud className={`w-3 h-3 text-sky-600 ${isSyncing ? 'animate-pulse' : ''}`} />
+                <span>{isSyncing ? '동기화 중...' : '실시간 클라우드 연동됨'}</span>
               </span>
             )}
           </div>

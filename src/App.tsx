@@ -26,6 +26,8 @@ export default function App() {
     deleteExtraExpense,
     resetToDefault,
     getEncodedTrip,
+    isCloudConnected,
+    isSyncing,
   } = useTripData();
 
   const {
@@ -131,6 +133,8 @@ export default function App() {
         isPreviewingAsViewer={isPreviewingAsViewer}
         onOpenHostLogin={() => setIsHostAuthModalOpen(true)}
         onTogglePreview={isPreviewingAsViewer ? stopViewerPreview : startViewerPreview}
+        isCloudConnected={isCloudConnected}
+        isSyncing={isSyncing}
       />
 
       {/* 2. [메인페이지] 대시보드 뷰 (src/pages/MainPage.tsx) */}

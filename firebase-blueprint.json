@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "TripPlan": {
+      "title": "TripPlan",
+      "description": "Shared Busan Trip Plan, Itinerary, and Real-time Expenses",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Trip title"
+        },
+        "destination": {
+          "type": "string",
+          "description": "Destination city"
+        },
+        "startDate": {
+          "type": "string",
+          "description": "Start date"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "End date"
+        },
+        "travelerCount": {
+          "type": "number",
+          "description": "Number of travelers"
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Author name"
+        },
+        "dDay": {
+          "type": "string",
+          "description": "D-Day string"
+        },
+        "days": {
+          "type": "array",
+          "description": "List of daily itineraries with spots and feeInfo"
+        },
+        "extraExpenses": {
+          "type": "array",
+          "description": "Miscellaneous shared expenses"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": ["title", "days"]
+    }
+  },
+  "firestore": {
+    "/trips/{tripId}": {
+      "schema": {
+        "$ref": "#/entities/TripPlan"
+      },
+      "description": "Shared trip itinerary and expenses data collection"
+    }
+  }
+}

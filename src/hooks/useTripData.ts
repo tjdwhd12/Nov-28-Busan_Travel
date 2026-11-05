@@ -2,8 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { TripPlan, Place, ExtraExpense, FeeInfo } from '../types/trip';
 import { INITIAL_TRIP_DATA } from '../data/initialTripData';
 import { resolvePlaceImage } from '../assets/images';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType, testConnection } from '../lib/firebase';
 
 const STORAGE_KEY = 'busan_trip_data_1128_v15';
+const TRIP_DOC_ID = 'busan_trip_1128';
 
 export function sanitizeTripImages(plan: TripPlan): TripPlan {
   if (!plan || !plan.days) return plan;
@@ -47,6 +50,9 @@ export function deserializeTripData(encoded: string): TripPlan | null {
 }
 
 export function useTripData() {
+  const [isCloudConnected, setIsCloudConnected] = useState<boolean>(false);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+
   const [trip, setTrip] = useState<TripPlan>(() => {
     // 1. Check if there is data payload in URL hash (e.g. from shared custom link)
     if (typeof window !== 'undefined' && window.location.hash) {
@@ -64,7 +70,7 @@ export function useTripData() {
       }
     }
 
-    // 2. Fallback to localStorage for v11
+    // 2. Fallback to localStorage
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -81,62 +87,126 @@ export function useTripData() {
     return INITIAL_TRIP_DATA;
   });
 
+  // Real-time Cloud Firestore synchronization
   useEffect(() => {
+    testConnection();
+
+    const tripRef = doc(db, 'trips', TRIP_DOC_ID);
+
+    // Listen to real-time changes from Firestore
+    const unsubscribe = onSnapshot(
+      tripRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const cloudData = snapshot.data() as TripPlan;
+          if (cloudData && cloudData.days && Array.isArray(cloudData.days)) {
+            const sanitized = sanitizeTripImages(cloudData);
+            setTrip(sanitized);
+            setIsCloudConnected(true);
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+            } catch (e) {
+              console.warn('Failed to save cloud trip to localStorage', e);
+            }
+          }
+        } else {
+          // Initialize remote database with current trip data
+          const initialClean = JSON.parse(JSON.stringify(INITIAL_TRIP_DATA));
+          setDoc(tripRef, initialClean)
+            .then(() => setIsCloudConnected(true))
+            .catch((err) => {
+              console.warn('Could not seed initial trip to Firestore:', err);
+              handleFirestoreError(err, OperationType.WRITE, `trips/${TRIP_DOC_ID}`);
+            });
+        }
+      },
+      (error) => {
+        console.warn('Firestore snapshot subscription warning:', error);
+        setIsCloudConnected(false);
+        handleFirestoreError(error, OperationType.GET, `trips/${TRIP_DOC_ID}`);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // Save to Firebase and LocalStorage synchronously
+  const commitTrip = useCallback((updated: TripPlan) => {
+    setTrip(updated);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(trip));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     } catch (e) {
       console.warn('Failed to save trip to localStorage', e);
     }
-  }, [trip]);
+
+    // Async sync to Firestore
+    setIsSyncing(true);
+    const cleaned = JSON.parse(JSON.stringify(updated));
+    const tripRef = doc(db, 'trips', TRIP_DOC_ID);
+    setDoc(tripRef, cleaned, { merge: true })
+      .then(() => {
+        setIsCloudConnected(true);
+        setIsSyncing(false);
+      })
+      .catch((err) => {
+        console.warn('Failed to sync changes to Firestore:', err);
+        setIsSyncing(false);
+        handleFirestoreError(err, OperationType.WRITE, `trips/${TRIP_DOC_ID}`);
+      });
+  }, []);
 
   const updatePlace = (dayNumber: number, updatedPlace: Place) => {
-    setTrip(prev => ({
-      ...prev,
-      days: prev.days.map(day => {
+    const nextTrip: TripPlan = {
+      ...trip,
+      days: trip.days.map(day => {
         if (day.dayNumber !== dayNumber) return day;
         return {
           ...day,
           places: day.places.map(p => (p.id === updatedPlace.id ? updatedPlace : p)),
         };
       }),
-    }));
+    };
+    commitTrip(nextTrip);
   };
 
   const addPlace = (dayNumber: number, newPlace: Place) => {
-    setTrip(prev => ({
-      ...prev,
-      days: prev.days.map(day => {
+    const nextTrip: TripPlan = {
+      ...trip,
+      days: trip.days.map(day => {
         if (day.dayNumber !== dayNumber) return day;
         return {
           ...day,
           places: [...day.places, newPlace],
         };
       }),
-    }));
+    };
+    commitTrip(nextTrip);
   };
 
   const deletePlace = (dayNumber: number, placeId: string) => {
-    setTrip(prev => ({
-      ...prev,
-      days: prev.days.map(day => {
+    const nextTrip: TripPlan = {
+      ...trip,
+      days: trip.days.map(day => {
         if (day.dayNumber !== dayNumber) return day;
         return {
           ...day,
           places: day.places.filter(p => p.id !== placeId),
         };
       }),
-    }));
+    };
+    commitTrip(nextTrip);
   };
 
   const updateTripMeta = (updates: Partial<Pick<TripPlan, 'title' | 'destination' | 'startDate' | 'endDate' | 'travelerCount' | 'dDay'>>) => {
-    setTrip(prev => ({
-      ...prev,
+    const nextTrip: TripPlan = {
+      ...trip,
       ...updates,
-    }));
+    };
+    commitTrip(nextTrip);
   };
 
   const resetToDefault = () => {
-    setTrip(INITIAL_TRIP_DATA);
+    commitTrip(INITIAL_TRIP_DATA);
     localStorage.removeItem(STORAGE_KEY);
     if (typeof window !== 'undefined' && window.location.hash) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -157,7 +227,7 @@ export function useTripData() {
     try {
       const parsed = JSON.parse(jsonString) as TripPlan;
       if (parsed.days && Array.isArray(parsed.days)) {
-        setTrip(parsed);
+        commitTrip(parsed);
         return true;
       }
     } catch (e) {
@@ -171,23 +241,25 @@ export function useTripData() {
       ...expense,
       id: 'ext_' + Date.now(),
     };
-    setTrip(prev => ({
-      ...prev,
-      extraExpenses: [...(prev.extraExpenses || []), newExpense],
-    }));
+    const nextTrip: TripPlan = {
+      ...trip,
+      extraExpenses: [...(trip.extraExpenses || []), newExpense],
+    };
+    commitTrip(nextTrip);
   };
 
   const deleteExtraExpense = (id: string) => {
-    setTrip(prev => ({
-      ...prev,
-      extraExpenses: (prev.extraExpenses || []).filter(e => e.id !== id),
-    }));
+    const nextTrip: TripPlan = {
+      ...trip,
+      extraExpenses: (trip.extraExpenses || []).filter(e => e.id !== id),
+    };
+    commitTrip(nextTrip);
   };
 
   const updatePlaceFeeInfo = (placeId: string, feeInfoUpdates: Partial<FeeInfo>) => {
-    setTrip(prev => ({
-      ...prev,
-      days: prev.days.map(day => ({
+    const nextTrip: TripPlan = {
+      ...trip,
+      days: trip.days.map(day => ({
         ...day,
         places: day.places.map(p => {
           if (p.id !== placeId) return p;
@@ -195,7 +267,6 @@ export function useTripData() {
             ...p.feeInfo,
             ...feeInfoUpdates,
           };
-          // Auto set hasFee true if costPerPerson > 0
           if (merged.costPerPerson > 0) {
             merged.hasFee = true;
           } else if (merged.costPerPerson === 0 && merged.bookingStatus === 'free') {
@@ -207,7 +278,8 @@ export function useTripData() {
           };
         }),
       })),
-    }));
+    };
+    commitTrip(nextTrip);
   };
 
   const getEncodedTrip = useCallback(() => {
@@ -227,5 +299,7 @@ export function useTripData() {
     exportToJson,
     importFromJson,
     getEncodedTrip,
+    isCloudConnected,
+    isSyncing,
   };
 }
