@@ -499,7 +499,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           </div>
         ) : (
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs text-slate-600 flex items-center justify-between">
-            <span>💡 우측 상단 <strong>[호스트 모드]</strong>를 활성화하면 새로운 기타 경비를 직접 등록 및 삭제할 수 있습니다.</span>
+            <span>💡 우측 상단 <strong>[관리자 모드]</strong>를 활성화하면 새로운 기타 경비를 직접 등록 및 삭제할 수 있습니다.</span>
           </div>
         )}
 
