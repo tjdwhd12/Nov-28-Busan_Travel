@@ -237,7 +237,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-sky-600 mb-1.5">
               <Calculator className="w-4 h-4" />
-              <span>관리자를 위한 스마트 정산 & 예산 계산기</span>
+              <span>스마트 정산 & 예산 계산기</span>
             </div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
               예산 & 예매 현황 ({friendsCount}인 기준)
@@ -271,19 +271,6 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           </div>
         </div>
       </div>
-
-      {/* 5인 기준 특화 안내 배너 */}
-      {friendsCount === 5 && (
-        <div className="bg-sky-50 border border-sky-200 rounded-2xl p-4 sm:p-5 flex items-start sm:items-center gap-3.5 text-xs sm:text-sm text-sky-900 shadow-2xs animate-in fade-in duration-200">
-          <div className="w-9 h-9 rounded-xl bg-sky-500 text-white flex items-center justify-center shrink-0 font-extrabold text-xs">
-            5인
-          </div>
-          <div className="flex-1 leading-relaxed">
-            <span className="font-bold text-sky-950">5인 맞춤 이동 & 예매 안내: </span>
-            블루라인파크 스카이캡슐은 1대당 최대 4인승 규정으로 <strong>3인승 1대 + 2인승 1대(총 79,000원 / 1인 15,800원)</strong>로 나누어 탑승하며, 이동 택시비 역시 <strong>일반택시 2대 분할 또는 대형택시(벤티/아이엠)</strong> 기준으로 5인 분할 계산되어 있습니다.
-          </div>
-        </div>
-      )}
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
