@@ -1,34 +1,42 @@
 /**
- * 장소명에서 불필요한 부가 설명, 괄호, 화살표 등을 제거하여
- * 네이버 지도, 카카오맵, 구글 지도에서 정확하게 검색되도록 정제하는 함수
+ * 장소명 기반으로 지도 앱(네이버 지도, 카카오맵, 구글 지도) 검색 쿼리를 생성하는 함수
+ * - 주소(지번/도로명) 대신 실제 상호명/장소명으로 검색하여
+ *   지도 앱에서 매장 플레이스 상세 정보(영업시간, 사진, 리뷰, 메뉴)가 바로 열리도록 합니다.
  */
-export function extractCleanSearchQuery(name: string, address?: string): string {
+export function getPlaceSearchQuery(name: string, address?: string): string {
+  if (!name || !name.trim()) {
+    if (address && address.trim()) {
+      return address.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
+    }
+    return '부산';
+  }
+
   const trimmed = name.trim();
 
-  // 1. 부산 코스 주요 명소별 정확한 공식 명칭 및 주소 매핑
-  if (trimmed.includes('러버커피') || trimmed.includes('러버')) return '부산 부산진구 전포대로 208';
-  if (trimmed.includes('동백섬')) return '동백섬';
-  if (trimmed.includes('엑스더스카이') || trimmed.includes('x the sky')) return '부산엑스더스카이';
-  if (trimmed.includes('스카이캡슐') || trimmed.includes('블루라인파크')) return '해운대블루라인파크 미포정거장';
-  if (trimmed.includes('부산역')) return '부산역';
-  if (trimmed.includes('브런치카페') || trimmed.includes('브런치')) return '부산 전포 브런치';
-  if (trimmed.includes('방어횟집') || trimmed.includes('방어')) return '해운대 미포 횟집';
-  if (trimmed.includes('본전돼지국밥')) return '본전돼지국밥';
+  // 1. 부산 코스 주요 명소별 가장 정확한 공식 상호명/장소명 매핑
+  if (trimmed.includes('도심속바다')) return '도심속바다';
+  if (trimmed.includes('초량온당')) return '초량온당';
+  if (trimmed.includes('러버커피') || trimmed.includes('러버')) return '러버커피';
+  if (trimmed.includes('동백섬') || (trimmed.includes('동백') && !trimmed.includes('주차장'))) return '해운대 동백섬';
+  if (trimmed.includes('엑스더스카이') || trimmed.includes('x the sky') || trimmed.includes('엘시티')) return '부산엑스더스카이';
+  if (trimmed.includes('블루라인파크') || trimmed.includes('스카이캡슐') || trimmed.includes('미포정거장')) return '해운대블루라인파크 미포정거장';
   if (trimmed.includes('흰여울')) return '흰여울문화마을';
+  if (trimmed.includes('본전돼지국밥')) return '본전돼지국밥';
   if (trimmed.includes('민락더마켓')) return '민락더마켓';
   if (trimmed.includes('광안리')) return '광안리해수욕장';
-  if (trimmed.includes('감천문화마을')) return '감천문화마을';
-  if (trimmed.includes('자갈치')) return '자갈치시장';
-  if (trimmed.includes('태종대')) return '태종대';
   if (trimmed.includes('해운대해수욕장')) return '해운대해수욕장';
+  if (trimmed.includes('감천문화마을')) return '감천문화마을';
   if (trimmed.includes('더베이101') || trimmed.includes('더베이')) return '더베이101';
   if (trimmed.includes('용궁사') || trimmed.includes('해동용궁사')) return '해동용궁사';
+  if (trimmed.includes('태종대')) return '태종대';
+  if (trimmed.includes('자갈치')) return '자갈치시장';
+  if (trimmed.includes('부산역')) return '부산역';
 
-  // 2. 일반 장소 텍스트 정제: 괄호 내 설명(예: '(점심 식사)', '[KTX 집결]') 및 특수기호 제거
-  let cleaned = name
+  // 2. 일반 장소 텍스트 정제: 괄호 내 설명(예: '(점심 식사)', '[KTX 집결]') 및 기호 제거
+  let cleaned = trimmed
     .replace(/\([^)]*\)/g, '')
     .replace(/\[[^\]]*\]/g, '')
-    .replace(/[➔→▶>•]/g, ' ')
+    .replace(/[➔→▶>•·]/g, ' ')
     .trim();
 
   // & 나 / 로 연결된 복수 장소의 경우 첫 번째 주요 장소명 추출
@@ -42,68 +50,45 @@ export function extractCleanSearchQuery(name: string, address?: string): string 
   // 중복 공백 제거
   cleaned = cleaned.replace(/\s+/g, ' ').trim();
 
-  // 정제 후 빈 문자열이면 원본에서 괄호만 벗겨 사용
-  if (!cleaned) {
-    cleaned = name.replace(/\([^)]*\)/g, '').trim() || name.trim();
+  // 일반 명사 대체 및 보완
+  if (cleaned === '브런치카페' || cleaned === '브런치') {
+    return '부산 전포 브런치카페';
+  }
+  if (cleaned === '방어' || cleaned === '방어횟집' || cleaned === '횟집') {
+    return '도심속바다';
   }
 
-  return cleaned;
+  return cleaned || trimmed;
 }
 
-/**
- * 등록된 주소 기반으로 지도 앱 검색 쿼리를 생성하는 함수
- * - 등록된 주소(address)가 있을 경우, 주소 내 부가설명 괄호(예: '(부산역사 2층)', '(미포정거장)')를
- *   제거한 정확한 표준 도로명/지번 주소로 검색합니다.
- * - 장소 상세가 미정인 경우(브런치카페, 방어횟집), 추천 권역 검색어를 제공합니다.
- */
-export function getAddressSearchQuery(name: string, address?: string): string {
-  // 장소 상세 미정(TBD)인 경우 최적의 검색어 매핑
-  if (name.includes('브런치')) {
-    return '부산 전포 카페거리 브런치';
-  }
-  if (name.includes('방어') || name.includes('횟집')) {
-    return '해운대 미포 횟집';
-  }
-
-  if (address && address.trim()) {
-    const cleanAddress = address
-      .replace(/\([^)]*\)/g, '')
-      .replace(/\[[^\]]*\]/g, '')
-      .replace(/미정/g, '')
-      .trim();
-    if (cleanAddress && cleanAddress.length >= 5) {
-      return cleanAddress;
-    }
-  }
-
-  // 주소가 없거나 불완전할 경우 장소명 정제값 사용
-  return extractCleanSearchQuery(name, address);
-}
+// 하위 호환성을 위한 헬퍼 유지
+export const extractCleanSearchQuery = getPlaceSearchQuery;
+export const getAddressSearchQuery = getPlaceSearchQuery;
 
 /**
- * 네이버 지도 검색 URL 생성 (등록된 주소 기반)
- * - 등록된 표준 주소로 네이버 지도 위치를 정확하게 검색하여 엽니다.
+ * 네이버 지도 검색 URL 생성 (장소명 기반)
+ * - 장소명으로 네이버 지도 검색을 실행하여 해당 장소 플레이스 카드를 바로 엽니다.
  */
 export function getNaverMapUrl(name: string, address?: string): string {
-  const query = getAddressSearchQuery(name, address);
+  const query = getPlaceSearchQuery(name, address);
   return `https://map.naver.com/p/search/${encodeURIComponent(query)}`;
 }
 
 /**
- * 카카오맵 검색 URL 생성 (등록된 주소 기반)
- * - 등록된 표준 주소로 카카오맵 위치를 정확하게 검색하여 엽니다.
+ * 카카오맵 검색 URL 생성 (장소명 기반)
+ * - 장소명으로 카카오맵 검색을 실행하여 해당 장소 정보를 바로 엽니다.
  */
 export function getKakaoMapUrl(name: string, address?: string): string {
-  const query = getAddressSearchQuery(name, address);
+  const query = getPlaceSearchQuery(name, address);
   return `https://map.kakao.com/link/search/${encodeURIComponent(query)}`;
 }
 
 /**
- * 구글 지도 검색 URL 생성 (등록된 주소 기반)
- * - 등록된 표준 주소로 구글 지도 위치를 정확하게 검색하여 엽니다.
+ * 구글 지도 검색 URL 생성 (장소명 기반)
+ * - 장소명으로 구글 지도 검색을 실행합니다.
  */
 export function getGoogleMapUrl(name: string, lat?: number, lng?: number, address?: string): string {
-  const query = getAddressSearchQuery(name, address);
+  const query = getPlaceSearchQuery(name, address);
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
