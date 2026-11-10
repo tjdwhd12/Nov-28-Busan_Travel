@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { Trip, Place, ExtraExpense, FeeInfo } from '../types/trip';
+import { Trip, Place, ExtraExpense, FeeInfo, SettlementAccount } from '../types/trip';
 import { DayTimeline } from '../components/itinerary/DayTimeline';
 import { BusanCourseMap } from '../components/map/BusanCourseMap';
 import { BudgetSummary } from '../components/info/BudgetSummary';
@@ -30,6 +30,7 @@ export interface MainPageProps {
   onAddExtraExpense?: (item: Omit<ExtraExpense, 'id'>) => void;
   onDeleteExtraExpense?: (id: string) => void;
   onUpdatePlaceFeeInfo?: (placeId: string, feeInfo: Partial<FeeInfo>) => void;
+  onUpdateSettlementAccount?: (account: SettlementAccount | undefined) => void;
 }
 
 export const MainPage: React.FC<MainPageProps> = ({
@@ -46,6 +47,7 @@ export const MainPage: React.FC<MainPageProps> = ({
   onAddExtraExpense,
   onDeleteExtraExpense,
   onUpdatePlaceFeeInfo,
+  onUpdateSettlementAccount,
 }) => {
   const activeDay = trip.days[0];
 
@@ -208,6 +210,7 @@ export const MainPage: React.FC<MainPageProps> = ({
               onAddExtraExpense={onAddExtraExpense}
               onDeleteExtraExpense={onDeleteExtraExpense}
               onUpdatePlaceFeeInfo={onUpdatePlaceFeeInfo}
+              onUpdateSettlementAccount={onUpdateSettlementAccount}
             />
           )}
 

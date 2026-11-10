@@ -24,6 +24,7 @@ export default function App() {
     deletePlace,
     addExtraExpense,
     deleteExtraExpense,
+    updateSettlementAccount,
     resetToDefault,
     getEncodedTrip,
     isCloudConnected,
@@ -160,6 +161,10 @@ export default function App() {
         onUpdatePlaceFeeInfo={(placeId, feeInfo) => {
           updatePlaceFeeInfo(placeId, feeInfo);
           showToast('예약 항목의 금액 및 내용이 수정되었습니다! ✍️');
+        }}
+        onUpdateSettlementAccount={(account) => {
+          updateSettlementAccount(account);
+          showToast('정산 계좌 정보가 저장되었습니다! 🏦');
         }}
       />
 

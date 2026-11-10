@@ -86,6 +86,13 @@ export interface ExtraExpense {
   note?: string;        // 메모/설명
 }
 
+export interface SettlementAccount {
+  bankName: string;         // 예: '토스뱅크'
+  accountNumber: string;    // 계좌번호 (예: '1000-1234-5678')
+  accountHolder: string;    // 예금주명
+  customMessage?: string;   // 입금 안내 메시지
+}
+
 export interface TripPlan {
   title: string;
   destination: string;
@@ -97,6 +104,7 @@ export interface TripPlan {
   days: DaySchedule[];
   checklist?: ChecklistItem[];
   extraExpenses?: ExtraExpense[];
+  settlementAccount?: SettlementAccount;
 }
 
 export type Trip = TripPlan;

@@ -65,7 +65,7 @@ export const ParkingGuide: React.FC<ParkingGuideProps> = () => {
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
               <div>
                 <div className="font-bold text-emerald-950">무료 지원 확인</div>
-                <div className="text-emerald-800 text-[11px]">블루라인(2h), 엑스더스카이(2h)</div>
+                <div className="text-emerald-800 text-[11px]">블루라인(2h), 엑스더스카이(2h), 숙소(전액무료)</div>
               </div>
             </div>
             <div className="bg-amber-50 border border-amber-200/80 rounded-2xl px-3.5 py-2.5 flex items-center gap-2 text-xs">
@@ -370,13 +370,13 @@ export const ParkingGuide: React.FC<ParkingGuideProps> = () => {
           <li className="flex items-start gap-2">
             <span className="font-bold text-amber-300 shrink-0">3.</span>
             <span>
-              <strong>전포 카페거리(브런치 & 러버커피):</strong> 골목 내 불법 주정차 단속이 심하므로 안전하고 넓은 <strong>전포역 지하 공영주차장</strong>(10분 300원)을 이용하시면 편리합니다.
+              <strong>전포 카페거리(디노브런치 & 러버커피):</strong> 골목 내 불법 주정차 단속이 심하므로 안전하고 넓은 <strong>전포역 지하 공영주차장</strong>(10분 300원)을 이용하시면 편리합니다.
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="font-bold text-amber-300 shrink-0">4.</span>
             <span>
-              <strong>도심속바다(연산동):</strong> 마지막 코스에서 식사 및 음주 예정이므로 귀가 시 <strong>대리운전</strong>을 사전에 호출하거나 인근 한창타워 주차장에 안전하게 주차하세요.
+              <strong>STAY gree#171(부산역 숙소):</strong> 숙소 건물 내 <strong>투숙객 전용 주차장(무료)</strong>이 완비되어 있습니다. 입실 시 호스트 안내에 따라 전용 주차 구역에 편리하게 무료 주차하세요.
             </span>
           </li>
         </ul>

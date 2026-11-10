@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TripPlan, Place, ExtraExpense, FeeInfo } from '../../types/trip';
+import { TripPlan, Place, ExtraExpense, FeeInfo, SettlementAccount } from '../../types/trip';
 import {
   Calculator,
   Ticket,
@@ -17,7 +17,14 @@ import {
   Pencil,
   DollarSign,
   X,
-  Check
+  Check,
+  Send,
+  Copy,
+  ExternalLink,
+  CreditCard,
+  ArrowRight,
+  Smartphone,
+  Building2,
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/mapUtils';
 import { BookingStatusBadge } from '../common/Badge';
@@ -29,6 +36,7 @@ interface BudgetSummaryProps {
   onAddExtraExpense?: (expense: Omit<ExtraExpense, 'id'>) => void;
   onDeleteExtraExpense?: (id: string) => void;
   onUpdatePlaceFeeInfo?: (placeId: string, feeInfo: Partial<FeeInfo>) => void;
+  onUpdateSettlementAccount?: (account: SettlementAccount | undefined) => void;
 }
 
 const CATEGORY_MAP = {
@@ -52,6 +60,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   onAddExtraExpense,
   onDeleteExtraExpense,
   onUpdatePlaceFeeInfo,
+  onUpdateSettlementAccount,
 }) => {
   const [friendsCount, setFriendsCount] = useState<number>(trip.travelerCount || 5);
 
@@ -72,6 +81,10 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   const [editDeadline, setEditDeadline] = useState<string>('');
   const [editStatus, setEditStatus] = useState<'booked' | 'need_booking' | 'on_site' | 'free'>('booked');
   const [editSuccessPlaceId, setEditSuccessPlaceId] = useState<string | null>(null);
+
+  // Settlement Account & Transfer State
+  const [copiedAccount, setCopiedAccount] = useState<boolean>(false);
+  const [showTossModal, setShowTossModal] = useState<boolean>(false);
 
   // Collect all places
   const allPlaces: Place[] = [];
@@ -228,6 +241,67 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
     }
   };
 
+  // 모바일/데스크톱 기기 및 브라우저 환경 감지
+  const getDevicePlatform = (): 'android' | 'ios' | 'desktop' => {
+    if (typeof navigator === 'undefined') return 'desktop';
+    const ua = navigator.userAgent || '';
+    if (/android/i.test(ua)) return 'android';
+    if (/iphone|ipad|ipod/i.test(ua)) return 'ios';
+    return 'desktop';
+  };
+
+  // 토스 송금 딥링크 생성 (안드로이드 Intent URI vs iOS Custom Scheme)
+  const getTossDeepLink = (amount: number): string => {
+    const platform = getDevicePlatform();
+    const encodedBank = encodeURIComponent('카카오뱅크');
+    const accountNo = '3333336467989';
+
+    if (platform === 'android') {
+      // 안드로이드 Chrome 표준 Intent URI: 앱 미설치 시 Play Store로 자동 폴백
+      return `intent://send?bank=${encodedBank}&accountNo=${accountNo}&amount=${amount}#Intent;scheme=supertoss;package=viva.republica.toss;end;`;
+    }
+    // iOS 및 기타 환경
+    return `supertoss://send?bank=${encodedBank}&accountNo=${accountNo}&amount=${amount}`;
+  };
+
+  // 카카오뱅크 앱 실행 딥링크
+  const getKakaoBankDeepLink = (): string => {
+    const platform = getDevicePlatform();
+    if (platform === 'android') {
+      return `intent://#Intent;scheme=kakaobank;package=com.kakaobank.channel;end;`;
+    }
+    return `kakaobank://`;
+  };
+
+  const handleCopyAccountOnly = () => {
+    try {
+      navigator.clipboard.writeText('카카오뱅크 3333336467989');
+      setCopiedAccount(true);
+      setTimeout(() => setCopiedAccount(false), 2500);
+    } catch (err) {
+      console.warn('Clipboard write error', err);
+    }
+  };
+
+  const handleTossTransfer = () => {
+    // 1. 계좌번호 우선 클립보드 복사 (모바일 뱅킹 진입 시 '복사한 계좌로 송금' 기능 지원)
+    handleCopyAccountOnly();
+
+    const platform = getDevicePlatform();
+    if (platform !== 'desktop') {
+      // 모바일 환경이면 토스 앱 딥링크 실행
+      try {
+        const link = getTossDeepLink(grandTotalPerPerson);
+        window.location.href = link;
+      } catch (err) {
+        console.warn('Deep link launch error', err);
+      }
+    }
+
+    // 모달을 열어 데스크톱 안내 및 모바일 재시도/카카오뱅크 옵션 제공
+    setShowTossModal(true);
+  };
+
   return (
     <div className="space-y-6">
       
@@ -324,6 +398,52 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           </div>
         </div>
 
+      </div>
+
+      {/* ========================================================
+          정산하기 (송금하기) & 계좌번호 (간결한 1줄 UI)
+          ======================================================== */}
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs space-y-3">
+        {/* 버튼 상단 1줄짜리 계좌번호 텍스트 및 복사 버튼 */}
+        <div className="flex items-center justify-between gap-2.5 px-3 py-2 bg-slate-50/80 hover:bg-slate-50 rounded-xl border border-slate-200/80 transition-colors">
+          <div className="flex items-center gap-2 min-w-0 flex-wrap sm:flex-nowrap">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 shrink-0">
+              입금 계좌
+            </span>
+            <div className="h-3 w-px bg-slate-200 shrink-0 hidden sm:block" />
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-xs sm:text-sm font-bold text-slate-700 shrink-0">
+                카카오뱅크
+              </span>
+              <span className="text-xs sm:text-sm font-black text-slate-900 tracking-wider tabular-nums font-sans select-all">
+                3333336467989
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleCopyAccountOnly}
+            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0 border ${
+              copiedAccount
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-300 shadow-2xs'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200/90 hover:border-slate-300 shadow-3xs active:scale-95'
+            }`}
+            title="계좌번호 복사"
+          >
+            {copiedAccount ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+            <span>{copiedAccount ? '복사완료! ✓' : '복사'}</span>
+          </button>
+        </div>
+
+        {/* 버튼: 정산하기(송금하기) */}
+        <button
+          type="button"
+          onClick={handleTossTransfer}
+          className="w-full py-3.5 px-5 rounded-2xl bg-[#FEE500] hover:bg-[#FADA0A] text-slate-950 font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-xs active:scale-[0.99] transition-all cursor-pointer"
+        >
+          <Send className="w-4 h-4 text-slate-950" />
+          <span>정산하기(송금하기)</span>
+        </button>
       </div>
 
       {/* ========================================================
@@ -895,6 +1015,133 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           })}
         </div>
       </div>
+
+      {/* ========================================================
+          정산하기 (송금 안내 모달)
+          ======================================================== */}
+      {showTossModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="p-2 rounded-xl bg-amber-100 text-slate-950">
+                  <Send className="w-4 h-4 text-slate-950" />
+                </span>
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-base">
+                    정산하기 (송금하기)
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    계좌번호가 복사되었습니다.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTossModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-600 font-medium">입금 계좌:</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-slate-900 font-sans tracking-wide">
+                      <span className="text-slate-700 mr-1.5 font-bold">카카오뱅크</span>
+                      <span className="font-black text-slate-900 tabular-nums">3333336467989</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopyAccountOnly}
+                      className="p-1 rounded-md hover:bg-amber-100 text-slate-600 transition-colors"
+                      title="계좌 복사"
+                    >
+                      {copiedAccount ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-amber-200/60">
+                  <span className="text-slate-600 font-medium">1인 정산 금액:</span>
+                  <span className="font-black text-sm text-slate-900 tabular-nums">
+                    {formatCurrency(grandTotalPerPerson)}
+                  </span>
+                </div>
+              </div>
+
+              {copiedAccount && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>계좌번호(카카오뱅크 3333336467989)가 복사되었습니다!</span>
+                </div>
+              )}
+
+              {getDevicePlatform() === 'desktop' ? (
+                <div className="p-3 rounded-xl bg-blue-50/80 border border-blue-200 text-xs text-blue-900 space-y-1">
+                  <div className="font-bold flex items-center gap-1.5 text-blue-800">
+                    <AlertCircle className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>PC 브라우저 송금 안내</span>
+                  </div>
+                  <p className="text-[11px] text-blue-700 leading-relaxed">
+                    토스/카카오뱅크 앱은 스마트폰 모바일 기기에서만 직접 실행됩니다. 계좌번호가 클립보드에 복사되었으니 스마트폰 뱅킹 앱을 열어 간편하게 붙여넣기 송금해주세요.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  토스 앱이 설치되어 있으면 송금 화면으로 자동 연결되며, 계좌번호가 복사되어 있어 어떤 은행 앱에서도 바로 붙여넣어 송금하실 수 있습니다.
+                </p>
+              )}
+
+              <div className="space-y-2 pt-1">
+                {/* 토스 앱 송금 버튼 */}
+                <a
+                  href={getTossDeepLink(grandTotalPerPerson)}
+                  target="_top"
+                  onClick={() => handleCopyAccountOnly()}
+                  className="w-full py-3 px-4 rounded-xl bg-[#0064FF] hover:bg-[#0052cc] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+                >
+                  <Smartphone className="w-4 h-4" />
+                  <span>토스 앱으로 송금하기</span>
+                </a>
+
+                {/* 카카오뱅크 앱 열기 버튼 */}
+                <a
+                  href={getKakaoBankDeepLink()}
+                  target="_top"
+                  onClick={() => handleCopyAccountOnly()}
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#FEE500] hover:bg-[#FADA0A] text-slate-950 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-3xs transition-colors cursor-pointer"
+                >
+                  <Building2 className="w-4 h-4 text-slate-950" />
+                  <span>카카오뱅크 앱 열기</span>
+                </a>
+
+                {/* 계좌번호 다시 복사 버튼 */}
+                <button
+                  type="button"
+                  onClick={handleCopyAccountOnly}
+                  className="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Copy className="w-3.5 h-3.5 text-slate-500" />
+                  <span>계좌번호만 다시 복사하기</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowTossModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -1,25 +1,41 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TripPlan, Place, ExtraExpense, FeeInfo } from '../types/trip';
+import { TripPlan, Place, ExtraExpense, FeeInfo, SettlementAccount } from '../types/trip';
 import { INITIAL_TRIP_DATA } from '../data/initialTripData';
 import { resolvePlaceImage } from '../assets/images';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, testConnection } from '../lib/firebase';
 
-const STORAGE_KEY = 'busan_trip_data_1128_v15';
+const STORAGE_KEY = 'busan_trip_data_1128_v18';
 const TRIP_DOC_ID = 'busan_trip_1128';
 
 export function sanitizeTripImages(plan: TripPlan): TripPlan {
   if (!plan || !plan.days) return plan;
   return {
     ...plan,
+    settlementAccount: (plan.settlementAccount && plan.settlementAccount.accountNumber)
+      ? plan.settlementAccount
+      : INITIAL_TRIP_DATA.settlementAccount,
     title: plan.title === '11/28 부산 여행' ? '11월 28일 부산 여행' : (plan.title || '11월 28일 부산 여행'),
     days: plan.days.map((day) => ({
       ...day,
       title: day.title === '부산 알짜 당일치기 코스' ? '부산 여행 코스' : day.title,
-      places: day.places.map((place) => ({
-        ...place,
-        imageUrl: resolvePlaceImage(place.imageUrl, place.id, place.name),
-      })),
+      subtitle: (day.subtitle && day.subtitle.includes('도심속바다'))
+        ? '부산역 집결 ➔ 디노브런치앤다이닝 ➔ 전포 러버커피 ➔ 동백섬 ➔ 해운대블루라인파크 ➔ 부산엑스더스카이 ➔ STAY gree 숙소'
+        : (day.subtitle || '부산역 집결 ➔ 디노브런치앤다이닝 ➔ 전포 러버커피 ➔ 동백섬 ➔ 해운대블루라인파크 ➔ 부산엑스더스카이 ➔ STAY gree 숙소'),
+      places: day.places.map((place) => {
+        // Upgrade d1-p2 if it was still generic '브런치카페'
+        if (place.id === 'd1-p2' && (place.name === '브런치카페' || place.isTbd)) {
+          return INITIAL_TRIP_DATA.days[0].places[1];
+        }
+        // Upgrade d1-p7 if it was still old sashimi restaurant or missing free parking tip
+        if (place.id === 'd1-p7' && (place.name.includes('도심속바다') || place.name.includes('방어') || place.name.includes('횟집') || !place.tips?.some(t => t.includes('무료 주차')))) {
+          return INITIAL_TRIP_DATA.days[0].places[6];
+        }
+        return {
+          ...place,
+          imageUrl: resolvePlaceImage(place.imageUrl, place.id, place.name),
+        };
+      }),
     })),
   };
 }
@@ -107,6 +123,18 @@ export function useTripData() {
               localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
             } catch (e) {
               console.warn('Failed to save cloud trip to localStorage', e);
+            }
+            // If remote Firestore had outdated place names, missing free parking, or old account, sync back
+            if (
+              JSON.stringify(cloudData).includes('도심속바다') ||
+              JSON.stringify(cloudData).includes('브런치카페') ||
+              !JSON.stringify(cloudData).includes('무료 주차') ||
+              !JSON.stringify(cloudData).includes('3333336467989')
+            ) {
+              const cleanSanitized = JSON.parse(JSON.stringify(sanitized));
+              setDoc(tripRef, cleanSanitized, { merge: true }).catch(err => {
+                console.warn('Failed to auto-update upgraded places to Firestore:', err);
+              });
             }
           }
         } else {
@@ -282,6 +310,14 @@ export function useTripData() {
     commitTrip(nextTrip);
   };
 
+  const updateSettlementAccount = (account: SettlementAccount | undefined) => {
+    const nextTrip: TripPlan = {
+      ...trip,
+      settlementAccount: account,
+    };
+    commitTrip(nextTrip);
+  };
+
   const getEncodedTrip = useCallback(() => {
     return serializeTripData(trip);
   }, [trip]);
@@ -295,6 +331,7 @@ export function useTripData() {
     addExtraExpense,
     deleteExtraExpense,
     updateTripMeta,
+    updateSettlementAccount,
     resetToDefault,
     exportToJson,
     importFromJson,

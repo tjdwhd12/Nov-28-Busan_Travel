@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   ShoppingBag,
   Car,
+  Home,
 } from 'lucide-react';
 import { Place } from '../types/trip';
 import { CategoryBadge, BookingStatusBadge } from '../components/common/Badge';
@@ -324,9 +325,17 @@ export const PlaceDetailPage: React.FC<PlaceDetailPageProps> = ({
             <div>
               <div className="flex items-center justify-between mb-2.5">
                 <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                  <Utensils className="w-4 h-4 text-orange-600" />
+                  {place.category === 'stay' ? (
+                    <Home className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <Utensils className="w-4 h-4 text-orange-600" />
+                  )}
                   <span>
-                    {place.category === 'cafe' ? '카페 전체 메뉴판' : '전체 및 추천 메뉴'}
+                    {place.category === 'cafe'
+                      ? '카페 전체 메뉴판'
+                      : place.category === 'stay'
+                      ? '숙소 객실 구성 및 구비 어메니티'
+                      : '전체 및 추천 메뉴'}
                   </span>
                 </h4>
                 <span className="text-[11px] text-slate-400">총 {place.recommendedMenu.length}개 항목</span>
