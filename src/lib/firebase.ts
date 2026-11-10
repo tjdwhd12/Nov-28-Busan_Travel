@@ -47,8 +47,12 @@ export async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'trips', 'connection_test'));
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn('Firebase client offline, falling back to local cache.');
+    if (error instanceof Error) {
+      if (error.message.includes('the client is offline')) {
+        console.warn('Firebase client offline, falling back to local cache.');
+      } else if (error.message.includes('resource-exhausted') || error.message.includes('Quota')) {
+        console.warn('Firestore daily quota reached. Falling back to local storage.');
+      }
     }
   }
 }

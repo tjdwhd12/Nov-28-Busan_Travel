@@ -80,6 +80,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   const [editNotes, setEditNotes] = useState<string>('');
   const [editDeadline, setEditDeadline] = useState<string>('');
   const [editStatus, setEditStatus] = useState<'booked' | 'need_booking' | 'on_site' | 'free'>('booked');
+  const [editIsSettled, setEditIsSettled] = useState<boolean>(false);
   const [editSuccessPlaceId, setEditSuccessPlaceId] = useState<string | null>(null);
 
   // Settlement Account & Transfer State
@@ -95,6 +96,8 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   let totalFoodCostPerPerson = 0;
   let totalStayCostPerPerson = 0;
   let totalTransportCostPerPerson = 0;
+  let settledCostPerPerson = 0;
+  let settledPlacesCount = 0;
 
   allPlaces.forEach(p => {
     const cost = p.feeInfo.hasFee ? p.feeInfo.costPerPerson : 0;
@@ -106,6 +109,11 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       totalStayCostPerPerson += cost;
     } else if (p.category === 'transport') {
       totalTransportCostPerPerson += cost;
+    }
+
+    if (p.feeInfo.isSettled && cost > 0) {
+      settledCostPerPerson += cost;
+      settledPlacesCount += 1;
     }
   });
 
@@ -126,6 +134,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   const totalExtraAll = extraExpenses.reduce((sum, item) => sum + (item.amount || 0), 0);
   const totalExtraPerPerson = Math.round(totalExtraAll / friendsCount);
 
+  // 전체 예상 총 회비 (전체 예산 기준)
   const grandTotalPerPerson =
     totalActivityCostPerPerson +
     totalFoodCostPerPerson +
@@ -135,6 +144,10 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
     totalExtraPerPerson;
 
   const grandTotalAll = grandTotalPerPerson * friendsCount;
+
+  // 현장 정산완료 항목을 제외한 '실제 최종 송금(입금) 필요 금액'
+  const remainingTransferAmountPerPerson = Math.max(0, grandTotalPerPerson - settledCostPerPerson);
+  const remainingTransferAmountAll = remainingTransferAmountPerPerson * friendsCount;
 
   // Filter booked or need-booking places
   const reservationPlaces = allPlaces.filter(
@@ -196,6 +209,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
     setEditNotes(place.feeInfo.notes || '');
     setEditDeadline(place.feeInfo.bookingDeadline || '');
     setEditStatus(place.feeInfo.bookingStatus || 'need_booking');
+    setEditIsSettled(!!place.feeInfo.isSettled);
   };
 
   const handleCancelEditReservation = (e?: React.MouseEvent) => {
@@ -233,11 +247,24 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
         notes: editNotes.trim(),
         bookingStatus: editStatus,
         bookingDeadline: editDeadline.trim() || undefined,
+        isSettled: editIsSettled,
       });
 
       setEditingPlaceId(null);
       setEditSuccessPlaceId(placeId);
       setTimeout(() => setEditSuccessPlaceId(null), 2500);
+    }
+  };
+
+  // 현장 정산완료 토글 (관리자 모드 전용 - 해당 금액을 추후 입금 대상에서 즉시 제외/포함)
+  const handleToggleSettled = (place: Place, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!isHost) return;
+    if (onUpdatePlaceFeeInfo) {
+      const nextIsSettled = !place.feeInfo.isSettled;
+      onUpdatePlaceFeeInfo(place.id, {
+        isSettled: nextIsSettled,
+      });
     }
   };
 
@@ -338,19 +365,36 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        {/* 1인당 총 예상 회비 */}
+        {/* 1인당 총 예상 회비 & 최종 송금 필요액 */}
         <div className="bg-gradient-to-br from-sky-500 to-sky-600 text-white rounded-3xl p-6 shadow-md shadow-sky-500/20">
-          <div className="text-xs font-medium text-sky-100">1인당 예상 총 회비</div>
-          <div className="text-3xl font-black tabular-nums tracking-tight mt-1.5">
-            {formatCurrency(grandTotalPerPerson)}
+          <div className="text-xs font-medium text-sky-100 flex items-center justify-between">
+            <span>{settledCostPerPerson > 0 ? '1인당 송금(입금) 필요액' : '1인당 예상 총 회비'}</span>
+            {settledCostPerPerson > 0 && (
+              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-400/30 text-emerald-100 border border-emerald-300/40">
+                현장정산 {formatCurrency(settledCostPerPerson)} 제외
+              </span>
+            )}
           </div>
-          <div className="text-xs text-sky-100/90 mt-2">
-            {friendsCount}인 총합: {formatCurrency(grandTotalAll)}
+          <div className="text-3xl font-black tabular-nums tracking-tight mt-1.5">
+            {formatCurrency(remainingTransferAmountPerPerson)}
+          </div>
+          <div className="text-xs text-sky-100/90 mt-2 flex items-center justify-between flex-wrap gap-1">
+            <span>{friendsCount}인 총합: {formatCurrency(remainingTransferAmountAll)}</span>
+            {settledCostPerPerson > 0 && (
+              <span className="text-[11px] opacity-85">(전체 회비 {formatCurrency(grandTotalPerPerson)})</span>
+            )}
           </div>
         </div>
 
         {/* 모바일 전용: 총 회비 카드 바로 하단에 배치되는 정산하기 바 */}
         <div className="block sm:hidden bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs space-y-2.5">
+          {settledCostPerPerson > 0 && (
+            <div className="flex items-center justify-between text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200/70">
+              <span>현장 정산완료 항목 제외</span>
+              <span className="font-bold">-{formatCurrency(settledCostPerPerson)}</span>
+            </div>
+          )}
+
           {/* 버튼 상단 1줄짜리 계좌번호 텍스트 및 복사 버튼 */}
           <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-slate-50/90 rounded-xl border border-slate-200/80">
             <div className="flex items-center gap-1.5 min-w-0">
@@ -383,7 +427,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             className="w-full py-3.5 px-4 rounded-xl bg-[#FEE500] hover:bg-[#FADA0A] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-xs active:scale-[0.99] transition-all cursor-pointer"
           >
             <Send className="w-4 h-4 text-slate-950" />
-            <span>정산하기(송금하기)</span>
+            <span>정산하기(송금하기) · {formatCurrency(remainingTransferAmountPerPerson)}</span>
           </button>
         </div>
 
@@ -431,6 +475,16 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           정산하기 (송금하기) & 계좌번호 (데스크톱 / 태블릿 전용 UI)
           ======================================================== */}
       <div className="hidden sm:block bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs space-y-3">
+        {settledCostPerPerson > 0 && (
+          <div className="flex items-center justify-between text-xs font-semibold text-emerald-700 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200/70">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>현장 정산완료 항목 {settledPlacesCount}건(-{formatCurrency(settledCostPerPerson)})이 최종 송금 금액에서 자동 제외되었습니다.</span>
+            </span>
+            <span className="font-bold text-slate-900">최종 송금 필요: {formatCurrency(remainingTransferAmountPerPerson)}</span>
+          </div>
+        )}
+
         {/* 버튼 상단 1줄짜리 계좌번호 텍스트 및 복사 버튼 */}
         <div className="flex items-center justify-between gap-2.5 px-3 py-2 bg-slate-50/80 hover:bg-slate-50 rounded-xl border border-slate-200/80 transition-colors">
           <div className="flex items-center gap-2 min-w-0 flex-wrap sm:flex-nowrap">
@@ -469,7 +523,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           className="w-full py-3.5 px-5 rounded-2xl bg-[#FEE500] hover:bg-[#FADA0A] text-slate-950 font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-xs active:scale-[0.99] transition-all cursor-pointer"
         >
           <Send className="w-4 h-4 text-slate-950" />
-          <span>정산하기(송금하기)</span>
+          <span>정산하기(송금하기) · {formatCurrency(remainingTransferAmountPerPerson)}</span>
         </button>
       </div>
 
@@ -720,16 +774,21 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-lg font-bold text-slate-900">
                 티켓팅 및 사전예약 리스트
               </h3>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
                 총 {reservationPlaces.length}건
               </span>
+              {settledPlacesCount > 0 && (
+                <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  현장 정산완료 {settledPlacesCount}건 (-{formatCurrency(settledCostPerPerson)})
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              각 장소의 예약 상태와 1인당 비용, 오픈 일정을 점검하세요.
+              각 장소의 예약 상태와 비용을 점검하세요.{isHost ? ' 관리자는 현장에서 정산한 항목의 [정산완료]를 눌러 최종 입금 대상에서 제외할 수 있습니다.' : ' 현장 정산완료된 항목은 최종 입금 대상 금액에서 자동으로 제외됩니다.'}
             </p>
           </div>
 
@@ -946,6 +1005,25 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                       />
                     </div>
 
+                    {/* 현장 정산완료 여부 설정 */}
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200">
+                      <div>
+                        <span className="text-xs font-bold text-slate-800">현장 정산완료 (나중에 입금 제외)</span>
+                        <p className="text-[11px] text-slate-500">현장에서 이미 각자 결제/정산하여 추후 모임 통장 송금 대상에서 제외합니다.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditIsSettled(!editIsSettled)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          editIsSettled
+                            ? 'bg-emerald-600 text-white shadow-2xs'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {editIsSettled ? '정산완료 ✅' : '정산대기'}
+                      </button>
+                    </div>
+
                     {/* Action buttons */}
                     <div className="flex items-center justify-end gap-2 pt-2 border-t border-sky-200">
                       <button
@@ -969,6 +1047,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             }
 
             // 2. 일반 리스트 표시 모드
+            const isSettled = !!place.feeInfo.isSettled;
             return (
               <div
                 key={place.id}
@@ -976,20 +1055,27 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                 className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                   isJustSaved
                     ? 'border-emerald-400 bg-emerald-50/40 ring-1 ring-emerald-300'
+                    : isSettled
+                    ? 'border-emerald-200 bg-emerald-50/30'
                     : 'border-slate-100 hover:border-sky-300 hover:bg-sky-50/30 bg-white'
                 }`}
               >
                 <div className="flex items-start gap-3 min-w-0">
-                  <div className="p-2.5 rounded-xl bg-slate-100 text-slate-700 shrink-0 mt-0.5">
-                    <Ticket className="w-4 h-4 text-sky-600" />
+                  <div className={`p-2.5 rounded-xl shrink-0 mt-0.5 ${isSettled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
+                    {isSettled ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <Ticket className="w-4 h-4 text-sky-600" />}
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="text-sm font-bold text-slate-900 hover:text-sky-600 transition-colors">
+                      <h4 className={`text-sm font-bold transition-colors ${isSettled ? 'text-slate-700' : 'text-slate-900 hover:text-sky-600'}`}>
                         {place.name}
                       </h4>
                       <span className="text-xs text-slate-400">·</span>
                       <span className="text-xs text-slate-500">{place.area}</span>
+                      {isSettled && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          현장 정산완료 (입금 제외)
+                        </span>
+                      )}
                       {isJustSaved && (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
                           수정 완료! ✨
@@ -1007,16 +1093,20 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-3 sm:shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 flex-wrap">
                   <div className="text-right">
-                    <div className="text-sm font-bold text-slate-900 tabular-nums">
+                    <div className={`text-sm font-bold tabular-nums ${isSettled ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
                       {place.feeInfo.hasFee && place.feeInfo.costPerPerson > 0
                         ? `1인 ${formatCurrency(place.feeInfo.costPerPerson)}`
                         : '무료'}
                     </div>
                     {place.feeInfo.hasFee && place.feeInfo.costPerPerson > 0 && (
-                      <div className="text-[11px] text-slate-500 tabular-nums">
-                        {friendsCount}인 총 {formatCurrency(place.feeInfo.costPerPerson * friendsCount)}
+                      <div className="text-[11px] tabular-nums">
+                        {isSettled ? (
+                          <span className="text-emerald-700 font-bold">입금 금액 제외됨</span>
+                        ) : (
+                          <span className="text-slate-500">{friendsCount}인 총 {formatCurrency(place.feeInfo.costPerPerson * friendsCount)}</span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1024,6 +1114,33 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   <div className="shrink-0">
                     <BookingStatusBadge feeInfo={place.feeInfo} />
                   </div>
+
+                  {/* 현장 정산완료 (관리자 모드만 버튼 조작 가능, 일반 모드는 완료 상태 배지만 표시) */}
+                  {place.feeInfo.hasFee && place.feeInfo.costPerPerson > 0 && (
+                    isHost ? (
+                      <button
+                        type="button"
+                        onClick={(e) => handleToggleSettled(place, e)}
+                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shrink-0 border ${
+                          isSettled
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 shadow-2xs'
+                            : 'bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border-slate-200 hover:border-emerald-300 shadow-3xs active:scale-95'
+                        }`}
+                        title={isSettled ? '현장에서 정산 완료됨 (클릭 시 다시 입금 대상에 포함)' : '현장 정산완료 (클릭 시 나중에 입금할 금액에서 제외)'}
+                      >
+                        {isSettled ? <CheckCircle2 className="w-3.5 h-3.5 text-white" /> : <Check className="w-3.5 h-3.5 text-slate-400" />}
+                        <span>{isSettled ? '정산완료 ✅' : '정산완료'}</span>
+                      </button>
+                    ) : isSettled ? (
+                      <span
+                        className="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1 shrink-0"
+                        title="현장 정산완료 (최종 입금 대상에서 제외)"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>정산완료 ✅</span>
+                      </span>
+                    ) : null
+                  )}
 
                   {isHost && (
                     <button
@@ -1097,11 +1214,17 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-1 border-t border-amber-200/60">
-                  <span className="text-slate-600 font-medium">1인 정산 금액:</span>
+                  <span className="text-slate-600 font-medium">1인 최종 입금 금액:</span>
                   <span className="font-black text-sm text-slate-900 tabular-nums">
-                    {formatCurrency(grandTotalPerPerson)}
+                    {formatCurrency(remainingTransferAmountPerPerson)}
                   </span>
                 </div>
+                {settledCostPerPerson > 0 && (
+                  <div className="flex items-center justify-between pt-1 border-t border-amber-200/40 text-[11px] text-emerald-800">
+                    <span>현장 정산완료 항목 제외</span>
+                    <span className="font-bold">-{formatCurrency(settledCostPerPerson)}</span>
+                  </div>
+                )}
               </div>
 
               {copiedAccount && (
@@ -1130,7 +1253,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
               <div className="space-y-2 pt-1">
                 {/* 토스 앱 송금 버튼 */}
                 <a
-                  href={getTossDeepLink(grandTotalPerPerson)}
+                  href={getTossDeepLink(remainingTransferAmountPerPerson)}
                   target="_top"
                   onClick={() => handleCopyAccountOnly()}
                   className="w-full py-3 px-4 rounded-xl bg-[#0064FF] hover:bg-[#0052cc] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"

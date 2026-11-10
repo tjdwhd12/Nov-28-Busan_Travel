@@ -31,6 +31,7 @@ export interface FeeInfo {
   bookingUrl?: string;         // 예매 링크 (공식 웹사이트/네이버예약 등)
   bookingDeadline?: string;    // 예약 기한/오픈일정 (예: 이용일 2주 전 화요일 09:00 오픈)
   notes?: string;              // 예매 및 할인 팁
+  isSettled?: boolean;         // 현장/사전 정산완료 여부 (true인 경우 입금 대상에서 제외)
 }
 
 export interface Place {

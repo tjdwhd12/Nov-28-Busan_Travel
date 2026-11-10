@@ -124,18 +124,6 @@ export function useTripData() {
             } catch (e) {
               console.warn('Failed to save cloud trip to localStorage', e);
             }
-            // If remote Firestore had outdated place names, missing free parking, or old account, sync back
-            if (
-              JSON.stringify(cloudData).includes('도심속바다') ||
-              JSON.stringify(cloudData).includes('브런치카페') ||
-              !JSON.stringify(cloudData).includes('무료 주차') ||
-              !JSON.stringify(cloudData).includes('3333336467989')
-            ) {
-              const cleanSanitized = JSON.parse(JSON.stringify(sanitized));
-              setDoc(tripRef, cleanSanitized, { merge: true }).catch(err => {
-                console.warn('Failed to auto-update upgraded places to Firestore:', err);
-              });
-            }
           }
         } else {
           // Initialize remote database with current trip data
@@ -144,14 +132,20 @@ export function useTripData() {
             .then(() => setIsCloudConnected(true))
             .catch((err) => {
               console.warn('Could not seed initial trip to Firestore:', err);
-              handleFirestoreError(err, OperationType.WRITE, `trips/${TRIP_DOC_ID}`);
+              const isQuota = (err as any)?.code === 'resource-exhausted' || String(err).includes('Quota');
+              if (!isQuota) {
+                handleFirestoreError(err, OperationType.WRITE, `trips/${TRIP_DOC_ID}`);
+              }
             });
         }
       },
       (error) => {
         console.warn('Firestore snapshot subscription warning:', error);
         setIsCloudConnected(false);
-        handleFirestoreError(error, OperationType.GET, `trips/${TRIP_DOC_ID}`);
+        const isQuota = (error as any)?.code === 'resource-exhausted' || String(error).includes('Quota');
+        if (!isQuota) {
+          handleFirestoreError(error, OperationType.GET, `trips/${TRIP_DOC_ID}`);
+        }
       }
     );
 
@@ -179,7 +173,12 @@ export function useTripData() {
       .catch((err) => {
         console.warn('Failed to sync changes to Firestore:', err);
         setIsSyncing(false);
-        handleFirestoreError(err, OperationType.WRITE, `trips/${TRIP_DOC_ID}`);
+        const isQuota = (err as any)?.code === 'resource-exhausted' || String(err).includes('Quota');
+        if (isQuota) {
+          setIsCloudConnected(false);
+        } else {
+          handleFirestoreError(err, OperationType.WRITE, `trips/${TRIP_DOC_ID}`);
+        }
       });
   }, []);
 
