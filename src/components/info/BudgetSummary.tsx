@@ -284,21 +284,10 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   };
 
   const handleTossTransfer = () => {
-    // 1. 계좌번호 우선 클립보드 복사 (모바일 뱅킹 진입 시 '복사한 계좌로 송금' 기능 지원)
+    // 1. 계좌번호 우선 클립보드 복사
     handleCopyAccountOnly();
 
-    const platform = getDevicePlatform();
-    if (platform !== 'desktop') {
-      // 모바일 환경이면 토스 앱 딥링크 실행
-      try {
-        const link = getTossDeepLink(grandTotalPerPerson);
-        window.location.href = link;
-      } catch (err) {
-        console.warn('Deep link launch error', err);
-      }
-    }
-
-    // 모달을 열어 데스크톱 안내 및 모바일 재시도/카카오뱅크 옵션 제공
+    // 2. 사진과 같은 정산/송금 레이어 팝업 띄우기 (즉시 이동하지 않고 팝업 먼저 표시)
     setShowTossModal(true);
   };
 
@@ -360,6 +349,44 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           </div>
         </div>
 
+        {/* 모바일 전용: 총 회비 카드 바로 하단에 배치되는 정산하기 바 */}
+        <div className="block sm:hidden bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs space-y-2.5">
+          {/* 버튼 상단 1줄짜리 계좌번호 텍스트 및 복사 버튼 */}
+          <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-slate-50/90 rounded-xl border border-slate-200/80">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[11px] font-semibold text-slate-500 shrink-0">입금 계좌</span>
+              <div className="h-2.5 w-px bg-slate-200 shrink-0" />
+              <span className="text-xs font-bold text-slate-700 shrink-0">카카오뱅크</span>
+              <span className="text-xs font-black text-slate-900 tracking-wider tabular-nums font-sans select-all">
+                3333336467989
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleCopyAccountOnly}
+              className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0 border ${
+                copiedAccount
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                  : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200/90 shadow-3xs active:scale-95'
+              }`}
+              title="계좌번호 복사"
+            >
+              {copiedAccount ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3 text-slate-500" />}
+              <span>{copiedAccount ? '복사됨 ✓' : '복사'}</span>
+            </button>
+          </div>
+
+          {/* 버튼: 정산하기(송금하기) */}
+          <button
+            type="button"
+            onClick={handleTossTransfer}
+            className="w-full py-3.5 px-4 rounded-xl bg-[#FEE500] hover:bg-[#FADA0A] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-xs active:scale-[0.99] transition-all cursor-pointer"
+          >
+            <Send className="w-4 h-4 text-slate-950" />
+            <span>정산하기(송금하기)</span>
+          </button>
+        </div>
+
         {/* 액티비티 및 입장료 */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs">
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
@@ -401,9 +428,9 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       </div>
 
       {/* ========================================================
-          정산하기 (송금하기) & 계좌번호 (간결한 1줄 UI)
+          정산하기 (송금하기) & 계좌번호 (데스크톱 / 태블릿 전용 UI)
           ======================================================== */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs space-y-3">
+      <div className="hidden sm:block bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-2xs space-y-3">
         {/* 버튼 상단 1줄짜리 계좌번호 텍스트 및 복사 버튼 */}
         <div className="flex items-center justify-between gap-2.5 px-3 py-2 bg-slate-50/80 hover:bg-slate-50 rounded-xl border border-slate-200/80 transition-colors">
           <div className="flex items-center gap-2 min-w-0 flex-wrap sm:flex-nowrap">
@@ -1020,8 +1047,13 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           정산하기 (송금 안내 모달)
           ======================================================== */}
       {showTossModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowTossModal(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 cursor-pointer"
+        >
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 cursor-default">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-amber-100 text-slate-950">
