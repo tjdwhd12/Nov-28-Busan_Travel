@@ -376,7 +376,7 @@ export const ParkingGuide: React.FC<ParkingGuideProps> = () => {
           <li className="flex items-start gap-2">
             <span className="font-bold text-amber-300 shrink-0">4.</span>
             <span>
-              <strong>STAY gree#171(부산역 숙소):</strong> 숙소 건물 내 <strong>투숙객 전용 주차장(무료)</strong>이 완비되어 있습니다. 입실 시 호스트 안내에 따라 전용 주차 구역에 편리하게 무료 주차하세요.
+              <strong>마란트 호텔(부산역 숙소):</strong> 호텔 건물 내 <strong>투숙객 전용 주차장(무료)</strong>이 완비되어 있습니다. 입실 시 호텔 안내에 따라 전용 주차 구역에 편리하게 무료 주차하세요.
             </span>
           </li>
         </ul>

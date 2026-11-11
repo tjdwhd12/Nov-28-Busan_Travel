@@ -5,7 +5,7 @@ import { resolvePlaceImage } from '../assets/images';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, testConnection } from '../lib/firebase';
 
-const STORAGE_KEY = 'busan_trip_data_1128_v18';
+const STORAGE_KEY = 'busan_trip_data_1128_v19';
 const TRIP_DOC_ID = 'busan_trip_1128';
 
 export function sanitizeTripImages(plan: TripPlan): TripPlan {
@@ -19,16 +19,16 @@ export function sanitizeTripImages(plan: TripPlan): TripPlan {
     days: plan.days.map((day) => ({
       ...day,
       title: day.title === '부산 알짜 당일치기 코스' ? '부산 여행 코스' : day.title,
-      subtitle: (day.subtitle && day.subtitle.includes('도심속바다'))
-        ? '부산역 집결 ➔ 디노브런치앤다이닝 ➔ 전포 러버커피 ➔ 동백섬 ➔ 해운대블루라인파크 ➔ 부산엑스더스카이 ➔ STAY gree 숙소'
-        : (day.subtitle || '부산역 집결 ➔ 디노브런치앤다이닝 ➔ 전포 러버커피 ➔ 동백섬 ➔ 해운대블루라인파크 ➔ 부산엑스더스카이 ➔ STAY gree 숙소'),
+      subtitle: (day.subtitle && (day.subtitle.includes('도심속바다') || day.subtitle.includes('STAY') || day.subtitle.includes('gree')))
+        ? '부산역 집결 ➔ 디노브런치앤다이닝 ➔ 전포 러버커피 ➔ 동백섬 ➔ 해운대블루라인파크 ➔ 부산엑스더스카이 ➔ 마란트 호텔'
+        : (day.subtitle || '부산역 집결 ➔ 디노브런치앤다이닝 ➔ 전포 러버커피 ➔ 동백섬 ➔ 해운대블루라인파크 ➔ 부산엑스더스카이 ➔ 마란트 호텔'),
       places: day.places.map((place) => {
         // Upgrade d1-p2 if it was still generic '브런치카페'
         if (place.id === 'd1-p2' && (place.name === '브런치카페' || place.isTbd)) {
           return INITIAL_TRIP_DATA.days[0].places[1];
         }
-        // Upgrade d1-p7 if it was still old sashimi restaurant or missing free parking tip
-        if (place.id === 'd1-p7' && (place.name.includes('도심속바다') || place.name.includes('방어') || place.name.includes('횟집') || !place.tips?.some(t => t.includes('무료 주차')))) {
+        // Upgrade d1-p7 if it was still old stay or sashimi restaurant
+        if (place.id === 'd1-p7' && (!place.name.includes('마란트') || place.name.includes('STAY') || place.name.includes('gree') || place.name.includes('도심속바다') || (place.address && place.address.includes('16-12')))) {
           return INITIAL_TRIP_DATA.days[0].places[6];
         }
         return {

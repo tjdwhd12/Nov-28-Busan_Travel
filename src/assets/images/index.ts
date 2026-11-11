@@ -31,7 +31,7 @@ export const TRIP_IMAGES = {
   skyCapsule: capsuleImg,
   /** 부산엑스더스카이 (해운대 LCT 100층 전망대) */
   busanXTheSky: xtheskyImg,
-  /** 에어비앤비 숙소 (STAY gree#171씨티뷰 1701호) */
+  /** 숙소 (마란트 호텔) */
   stayGree: stayImg,
   /** 방어횟집 (겨울철 대방어회 & 제철 해산물) */
   sashimi: sashimiImg,
@@ -73,7 +73,7 @@ export function resolvePlaceImage(url?: string, placeId?: string, placeName?: st
   if (str.includes('d1-p6') || str.includes('엑스더스카이') || str.includes('x the sky') || str.includes('xthesky') || str.includes('엘시티')) {
     return TRIP_IMAGES.busanXTheSky;
   }
-  if (str.includes('d1-p7') || str.includes('stay') || str.includes('에어비앤비') || str.includes('숙소') || str.includes('gree') || str.includes('스테이')) {
+  if (str.includes('d1-p7') || str.includes('마란트') || str.includes('marant') || str.includes('stay') || str.includes('에어비앤비') || str.includes('숙소') || str.includes('gree') || str.includes('스테이') || str.includes('호텔')) {
     return TRIP_IMAGES.stayGree;
   }
   if (str.includes('방어') || str.includes('횟집') || str.includes('회') || str.includes('sashimi') || str.includes('도심속바다')) {

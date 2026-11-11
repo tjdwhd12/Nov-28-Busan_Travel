@@ -15,8 +15,8 @@ export function getPlaceSearchQuery(name: string, address?: string): string {
 
   // 1. 부산 코스 주요 명소별 가장 정확한 공식 상호명/장소명 매핑
   if (trimmed.includes('디노브런치') || trimmed.includes('디노')) return '디노브런치';
-  if (trimmed.includes('STAY') || trimmed.includes('stay') || trimmed.includes('gree') || trimmed.includes('숙소')) {
-    return '부산 동구 중앙대로180번길 16-12';
+  if (trimmed.includes('마란트') || trimmed.includes('STAY') || trimmed.includes('stay') || trimmed.includes('gree') || trimmed.includes('숙소')) {
+    return '마란트 호텔';
   }
   if (trimmed.includes('도심속바다')) return '도심속바다';
   if (trimmed.includes('초량온당')) return '초량온당';
